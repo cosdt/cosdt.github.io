@@ -1,0 +1,39 @@
+name: Publish blog
+
+on:
+  push:
+    branches: [ hexo ]
+  issues:
+    types: [labeled]
+
+jobs:
+  publish:
+    name: Generate page
+    runs-on: ubuntu-latest
+    if: github.event.label.name == 'publish'
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          ref: hexo
+      - name: Update config
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.HEXO_TOKEN }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+      - name: Install requirements
+        run: |
+          sudo apt install -y nodejs npm
+          npm install hexo-cli -g
+          npm install
+      - name: Generate page
+        run: |
+          hexo migrate github-issue cosdt/cosdt.github.io --publish
+          hexo clean
+          hexo generate
+      - name: Publish
+        run: |
+          git config --global user.name "Yikun"
+          git config --global user.email "yikunkero@gmail.com"
+          hexo deploy
