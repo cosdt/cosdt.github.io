@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>EulerPublisher: 一键发布openEuler镜像背后的技术 - Computing Open Source Development Team Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Computing Open Source Development Team Blog"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Computing Open Source Development Team Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="作者：@wjunLu 1. EulerPublisher架构eulerpublisher作为一款openEuler“一键式”发布工具，提供openEuler容器镜像、云镜像、WSL等镜像定制、发布和测试的能力。本项目主要使用python语言实现，并且以CLI的方式提供给用户使用。 eulerpublisher按照使用场景，分为容器镜像(container)、云镜像(cloudimg)、WSL(ws"><meta property="og:type" content="article"><meta property="og:title" content="EulerPublisher: 一键发布openEuler镜像背后的技术"><meta property="og:url" content="https://cosdt.github.io/2023/07/20/EulerPublisher-%E4%B8%80%E9%94%AE%E5%8F%91%E5%B8%83openEuler%E9%95%9C%E5%83%8F%E8%83%8C%E5%90%8E%E7%9A%84%E6%8A%80%E6%9C%AF/"><meta property="og:site_name" content="Computing Open Source Development Team Blog"><meta property="og:description" content="作者：@wjunLu 1. EulerPublisher架构eulerpublisher作为一款openEuler“一键式”发布工具，提供openEuler容器镜像、云镜像、WSL等镜像定制、发布和测试的能力。本项目主要使用python语言实现，并且以CLI的方式提供给用户使用。 eulerpublisher按照使用场景，分为容器镜像(container)、云镜像(cloudimg)、WSL(ws"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://github.com/cosdt/cosdt.github.io/assets/135617475/fc437c6a-9497-4569-8014-58cff6d1e014"><meta property="og:image" content="https://github.com/cosdt/cosdt.github.io/assets/135617475/5b8d4d42-f832-470e-9832-e75add20a75e"><meta property="article:published_time" content="2023-07-20T11:59:17.000Z"><meta property="article:modified_time" content="2024-01-07T12:18:23.285Z"><meta property="article:author" content="计算开源团队"><meta property="article:tag" content="openEuler"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://github.com/cosdt/cosdt.github.io/assets/135617475/fc437c6a-9497-4569-8014-58cff6d1e014"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://cosdt.github.io/2023/07/20/EulerPublisher-%E4%B8%80%E9%94%AE%E5%8F%91%E5%B8%83openEuler%E9%95%9C%E5%83%8F%E8%83%8C%E5%90%8E%E7%9A%84%E6%8A%80%E6%9C%AF/"},"headline":"EulerPublisher: 一键发布openEuler镜像背后的技术","image":[],"datePublished":"2023-07-20T11:59:17.000Z","dateModified":"2024-01-07T12:18:23.285Z","author":{"@type":"Person","name":"计算开源团队"},"publisher":{"@type":"Organization","name":"Computing Open Source Development Team Blog","logo":{"@type":"ImageObject","url":"https://cosdt.github.io/images/logo.jpeg"}},"description":"作者：@wjunLu 1. EulerPublisher架构eulerpublisher作为一款openEuler“一键式”发布工具，提供openEuler容器镜像、云镜像、WSL等镜像定制、发布和测试的能力。本项目主要使用python语言实现，并且以CLI的方式提供给用户使用。 eulerpublisher按照使用场景，分为容器镜像(container)、云镜像(cloudimg)、WSL(ws"}</script><link rel="canonical" href="https://cosdt.github.io/2023/07/20/EulerPublisher-%E4%B8%80%E9%94%AE%E5%8F%91%E5%B8%83openEuler%E9%95%9C%E5%83%8F%E8%83%8C%E5%90%8E%E7%9A%84%E6%8A%80%E6%9C%AF/"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.4.1/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/images/logo.jpeg" alt="Computing Open Source Development Team Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Our GitHub" href="https://github.com/cosdt"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-07-20T11:59:17.000Z" title="7/20/2023, 11:59:17 AM">2023-07-20</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-01-07T12:18:23.285Z" title="1/7/2024, 12:18:23 PM">2024-01-07</time></span></div></div><h1 class="title is-3 is-size-4-mobile">EulerPublisher: 一键发布openEuler镜像背后的技术</h1><div class="content"><p>作者：@wjunLu</p>
+<h2 id="1-EulerPublisher架构"><a href="#1-EulerPublisher架构" class="headerlink" title="1. EulerPublisher架构"></a>1. EulerPublisher架构</h2><p><code>eulerpublisher</code>作为一款openEuler“一键式”发布工具，提供openEuler容器镜像、云镜像、WSL等镜像定制、发布和测试的能力。本项目主要使用python语言实现，并且以<code>CLI</code>的方式提供给用户使用。</p>
+<p><code>eulerpublisher</code>按照使用场景，分为容器镜像(<strong>container</strong>)、云镜像(<strong>cloudimg</strong>)、WSL(<strong>wsl</strong>)这几个模块，而每个模块又按照子场景划分不同的子功能模块，每个子场景功能模块具备prepare、build、publish、check等能力，因而形成一种按照<strong>主场景</strong>、<strong>子场景</strong>、以及对应<strong>动作</strong>构成的分层软件架构，如图所示：<br><img src="https://github.com/cosdt/cosdt.github.io/assets/135617475/fc437c6a-9497-4569-8014-58cff6d1e014" alt="无标题-2023-08-14-0928-3"></p>
+<span id="more"></span>
+
+<p>以下围绕<code>eulerpublisher cli</code>的使用方式，来理解<code>eulerpublisher</code>的软件架构，<code>cli</code>通用形式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eulerpublisher &lt;Command1&gt; &lt;Command2&gt; &lt;Command3&gt; &lt;Options&gt;</span><br></pre></td></tr></table></figure>
+<p>详细说明如下：</p>
+<ul>
+<li><p>Command1<br><code>Command1</code>为主场景命令，使用时必填，取值有<code>container</code>、<code>cloudimg</code>、<code>wsl</code>等</p>
+</li>
+<li><p>Command2<br>  <code>Command2</code>确定子场景，使用时可选，具体情况如下：</p>
+<ol>
+<li>Command1 &#x3D;&#x3D; <code>container</code>场景，使用<code>Docker</code>完成镜像构建等一系列动作，暂无其他子场景，无 Command2；</li>
+<li>Command1 &#x3D;&#x3D;<code>cloudimg</code>场景，会针对不同云厂商有着不同的镜像定制及发布要求，因此Command 2必选，取值有<code>aws</code>、<code>azure</code>、<code>hwcloud</code>等。</li>
+</ol>
+</li>
+<li><p>Command3<br><code>Command3</code>是<code>Command 1～2</code> 组合场景下的“动作”，可选<code>prepare</code>、<code>build</code>、<code>push</code>、<code>publish</code>、<code>check</code>等，具体<code>Command 1~3</code>的可选组合请使用<code>eulerpublisher --help</code>逐级查看</p>
+</li>
+<li><p>Options<br><code>Options</code>是被执行命令的一组参数，每个不同的<code>Command 1~3</code>组合会有不同的参数选择，使用<code>eulerpublisher --help</code>查看。</p>
+</li>
+</ul>
+<p>示例如下：</p>
+<blockquote>
+<p>container场景</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 容器镜像发布</span><br><span class="line">eulerpublisher container publish --repo openeuler/openeuler --version 22.03-LTS-SP1 --registry registry-1.docker.io --dockerfile /Path/To/Dockerfile</span><br></pre></td></tr></table></figure>
+<p>  上述效果是向dockerhub(<a href="https://gitee.com/link?target=https://hub.docker.com">https://hub.docker.com</a>)的openeuler&#x2F;openeuler仓库发布由Dockerfile定制的tag为22.03-LTS-SP1的支持arm64、amd64多平台的openeuler容器镜像。</p>
+<blockquote>
+<p> cloudimg场景</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># AMI镜像构建</span><br><span class="line">eulerpublisher cloudimg aws build --version 22.03-LTS-SP1 --arch aarch64 --bucket openeuler --region ap-southeast-2</span><br></pre></td></tr></table></figure>
+<p>  此命令将在AWS的<code>ap-southeast-2</code>区的AMI列表生成一个<code>22.03-LTS-SP1</code>版本的<code>aarch64</code>架构的openEuler镜像，其制作的原始镜像来源于<code>openeuler</code>桶中。</p>
+<h2 id="2-EulerPublisher容器镜像构建原理"><a href="#2-EulerPublisher容器镜像构建原理" class="headerlink" title="2. EulerPublisher容器镜像构建原理"></a>2. EulerPublisher容器镜像构建原理</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p><code>eulerpublisher</code>基于<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/reference/run/">Docker CLI</a>和Dockerfile实现定制Docker容器镜像的功能。在介绍<code>eulerpublisher</code>实现容器镜像构建的原理之前，有必要先梳理一下有关的背景知识：</p>
+<h4 id="1-容器镜像"><a href="#1-容器镜像" class="headerlink" title="1). 容器镜像"></a>1). 容器镜像</h4><p>容器镜像是一个特殊的文件系统，除了提供容器运行时所需的程序、库、资源、配置等文件外，还包含了一些为运行时准备的配置参数。关于容器和容器镜像的关系，可以类比为程序设计中的类和实例，容器镜像是静态的类定义，容器是镜像运行时的实例。</p>
+<h4 id="2-Docker镜像分层"><a href="#2-Docker镜像分层" class="headerlink" title="2). Docker镜像分层"></a>2). Docker镜像分层</h4><p>Docker镜像是由多个文件系统叠加而成。最底层是一个引导文件系统，即<code>bootfs</code>，第二层是root文件系统 <code>rootfs</code>，它位于<code>bootfs</code>之上，其他的文件系统在<code>rootfs</code>之上。</p>
+<p>在Docker镜像中，所有的文件系统是只读的，这也体现了Docker镜像的静态属性。当Docker启动一个容器时，会加载这些只读层并在这些只读层的上面增加一个读写层，该读写层一般也被称为容器层。这时如果修改正在运行的容器中已有的文件，那么这个文件将会从只读层复制到读写层。该文件的只读版本还在，只是被上面读写层的该文件的副本隐藏。当删除docker，或者重新启动时，之前的更改将会消失。<br><img src="https://github.com/cosdt/cosdt.github.io/assets/135617475/5b8d4d42-f832-470e-9832-e75add20a75e" alt="layer"></p>
+<h4 id="3-Dockerfile"><a href="#3-Dockerfile" class="headerlink" title="3). Dockerfile"></a>3). Dockerfile</h4><p>Dockerfile是构建Docker镜像的“生产手册”，决定着Docker镜像的内容，以下是Dockerfile指令</p>
+<table>
+<thead>
+<tr>
+<th>Dockerfile 指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FROM</td>
+<td>指定基础镜像，用于后续的指令构建。</td>
+</tr>
+<tr>
+<td>MAINTAINER</td>
+<td>指定Dockerfile的作者&#x2F;维护者。（已弃用，推荐使用LABEL指令）</td>
+</tr>
+<tr>
+<td>LABEL</td>
+<td>添加镜像的元数据，使用键值对的形式。</td>
+</tr>
+<tr>
+<td>RUN</td>
+<td>在构建过程中在镜像中执行命令。</td>
+</tr>
+<tr>
+<td>CMD</td>
+<td>指定容器创建时的默认命令。（可以被覆盖）</td>
+</tr>
+<tr>
+<td>ENTRYPOINT</td>
+<td>设置容器创建时的主要命令。（不可被覆盖）</td>
+</tr>
+<tr>
+<td>EXPOSE</td>
+<td>声明容器运行时监听的特定网络端口。</td>
+</tr>
+<tr>
+<td>ENV</td>
+<td>在容器内部设置环境变量。</td>
+</tr>
+<tr>
+<td>ADD</td>
+<td>将文件、目录或远程URL复制到镜像中。</td>
+</tr>
+<tr>
+<td>COPY</td>
+<td>将文件或目录复制到镜像中。</td>
+</tr>
+<tr>
+<td>VOLUME</td>
+<td>为容器创建挂载点或声明卷。</td>
+</tr>
+<tr>
+<td>WORKDIR</td>
+<td>设置后续指令的工作目录。</td>
+</tr>
+<tr>
+<td>USER</td>
+<td>指定后续指令的用户上下文。</td>
+</tr>
+<tr>
+<td>ARG</td>
+<td>定义在构建过程中传递给构建器的变量，可使用 “docker build” 命令设置。</td>
+</tr>
+<tr>
+<td>ONBUILD</td>
+<td>当该镜像被用作另一个构建过程的基础时，添加触发器。</td>
+</tr>
+<tr>
+<td>STOPSIGNAL</td>
+<td>设置发送给容器以退出的系统调用信号。</td>
+</tr>
+<tr>
+<td>HEALTHCHECK</td>
+<td>定义周期性检查容器健康状态的命令。</td>
+</tr>
+<tr>
+<td>SHELL</td>
+<td>覆盖Docker中默认的shell，用于RUN、CMD和ENTRYPOINT指令。</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>示例</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># eulerpublisher的默认Dockerfile</span><br><span class="line"></span><br><span class="line">FROM scratch</span><br><span class="line">ARG TARGETARCH</span><br><span class="line">ADD openEuler-docker-rootfs.$TARGETARCH.tar.xz /</span><br><span class="line">RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime &amp;&amp; \</span><br><span class="line">    sed -i &quot;s/TMOUT=300/TMOUT=0/g&quot; /etc/bashrc</span><br><span class="line">CMD [&quot;bash&quot;]</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>解释</p>
+</blockquote>
+<ul>
+<li>FROM scratch<br>指定构建的Docker镜像的基础镜像是scratch，即一个空白镜像，没有预装任何软件包或依赖项。</li>
+<li>ARG TARGETARCH<br>声明一个构建变量TARGETARCH，在构建过程中会提供该变量的值。</li>
+<li>ADD openEuler-docker-rootfs.$TARGETARCH.tar.xz &#x2F;<br>将根文件系统的压缩包（openEuler-docker-rootfs.$TARGETARCH.tar.xz）添加到Docker镜像的根目录（&#x2F;）中。</li>
+<li>RUN ln -sf &#x2F;usr&#x2F;share&#x2F;zoneinfo&#x2F;UTC &#x2F;etc&#x2F;localtime &amp;&amp; \ …<br>设置系统时区为UTC、设置TMOUT&#x3D;0、更新yum并清理缓存。</li>
+<li>CMD [“bash”]<br>指定了在Docker镜像运行容器时要执行的默认命令为bash，即启动一个交互式的Bash shell会话。</li>
+</ul>
+<p> 需要注意的是，通过Dockerfile构建Docker镜像时，Dockerfile中的每一个写指令执行后都将会在最终镜像增加一层。因此，为了减少镜像的分层（又称为镜像裁剪），编写Dockerfile时尽可能一行命令执行多个写操作。如上述Dockerfile中<code>RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime &amp;&amp; \     sed -i &quot;s/TMOUT=300/TMOUT=0/g&quot; /etc/bashrc</code>使用一行命令执行2个操作也是出于此目的。</p>
+<p>使用eulerpublisher默认Dockerfile构建的镜像分层(size不为0的)如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">IMAGE          CREATED        CREATED BY                                       SIZE      COMMENT</span><br><span class="line">d9bff1b2db49   7 months ago   CMD [&quot;bash&quot;]                                     0B        buildkit.dockerfile.v0</span><br><span class="line">&lt;missing&gt;      7 months ago   RUN |1 TARGETARCH=amd64 /bin/sh -c ln -sf /u…    168kB     buildkit.dockerfile.v0</span><br><span class="line">&lt;missing&gt;      7 months ago   ADD openEuler-docker-rootfs.amd64.tar.xz / #…    191MB     buildkit.dockerfile.v0</span><br><span class="line">&lt;missing&gt;      7 months ago   ARG TARGETARCH                                   0B        buildkit.dockerfile.v0</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-docker-buildx-build"><a href="#4-docker-buildx-build" class="headerlink" title="4). docker buildx build"></a>4). docker buildx build</h4><p><code>eulerpublisher</code>使用<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/reference/commandline/buildx_build/"><code>docker buildx build</code></a>命令构建多架构（linux&#x2F;arm64, linux&#x2F;amd64）的openEuler镜像，核心命令示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker buildx build  -t openeuler/openeuler:22.03-LTS-SP1 --platform linux/arm64,linux/amd64 --push .</span><br></pre></td></tr></table></figure>
+<p>该命令使用默认Dockerfile（见上文）构建openEuler镜像，由于多平台镜像构建结果无法在本地缓存，只能使用<code>--push</code>保存在<code>openeuler/openeuler</code>仓库中。</p>
+<h3 id="Eulerpublisher容器镜像构建"><a href="#Eulerpublisher容器镜像构建" class="headerlink" title="Eulerpublisher容器镜像构建"></a>Eulerpublisher容器镜像构建</h3><p>有了上述基础以后，<code>eulerpublisher</code>构建容器镜像的思路就很容易理解。</p>
+<p>  1）按照Dockerfile的内容，<code>eulerpublisher</code>制作镜像前需要先获取<code>openEuler-docker-rootfs.$TARGETARCH.tar.xz</code>。该步骤由<code>prepare</code>功能实现，执行命令示例如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eulerpublisher container prepare --version 22.03-LTS-SP1</span><br></pre></td></tr></table></figure>
+<p>该命令从<a target="_blank" rel="noopener" href="http://repo.openeuler.org/openEuler-22.03-LTS-SP2/docker_img/">http://repo.openeuler.org/</a>下载aarch64和x86_64的原始镜像，将主要文件重新压缩后得到<code>openEuler-docker-rootfs.amd64.tar.xz</code>和<code>openEuler-docker-rootfs.arm64.tar.xz</code>两个文件。</p>
+<p>  2）获取<code>openEuler-docker-rootfs.$TARGETARCH.tar.xz</code>之后，使用<code>push</code>功能构建并保存镜像，命令示例如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eulerpublisher  container push --repo openeuler/openeuler --version 22.03-LTS-SP1 --registry registry-1.docker.io --dockerfile /Path/To/Dockerfile</span><br></pre></td></tr></table></figure>
+<p>该命令的核心步骤就是执行<code>docker buildx build</code>，构建的镜像将会保存在<a target="_blank" rel="noopener" href="https://hub.docker.com/">dockerhub</a>的<code>openeuler/openeuler</code>仓库，tag为<code>22.03-LTS-SP1</code>。</p>
+<h2 id="3-EulerPublisher云镜像构建原理"><a href="#3-EulerPublisher云镜像构建原理" class="headerlink" title="3. EulerPublisher云镜像构建原理"></a>3. EulerPublisher云镜像构建原理</h2><p>这部分描述eulerpublisher构建符合云商marketplace发布要求的云镜像的基本原理，按厂商不同分开说明</p>
+<h3 id="AWS"><a href="#AWS" class="headerlink" title="AWS"></a>AWS</h3><h4 id="镜像发布要求"><a href="#镜像发布要求" class="headerlink" title="镜像发布要求"></a>镜像发布要求</h4><p><a target="_blank" rel="noopener" href="https://aws.amazon.com/marketplace">AWS Marketplace</a>对发布的镜像规格存在一定约束：</p>
+<ol>
+<li>Virtual size最小为8GB</li>
+<li>ssh禁用password登录</li>
+<li>ssh禁用root用户登录</li>
+<li>禁止set_hostname</li>
+<li>禁止生成用户默认密码</li>
+</ol>
+<p>为了满足上述约束，eulerpublisher提供如下两个脚本</p>
+<ul>
+<li><code>aws_resize.sh</code> 用于改变镜像大小和格式，并配置arm版本的<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/enhanced-networking-ena.html">ena.ko</a>使能</li>
+<li><code>aws_install.sh</code> 用于修改镜像默认配置，并安装预置软件包</li>
+</ul>
+<h4 id="AMI构建原理"><a href="#AMI构建原理" class="headerlink" title="AMI构建原理"></a>AMI构建原理</h4><p>eulerpublisher构建AMI分为两个阶段：<br><strong>1. prepare阶段</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># prepare命令</span><br><span class="line">eulerpublisher -v &#123;VERSION&#125; -a &#123;ARCH&#125; -b &#123;BUCKET&#125;</span><br></pre></td></tr></table></figure>
+<p>  (a). 从<a target="_blank" rel="noopener" href="https://repo.openeuler.org/">repo.openeuler.org</a>下载版本为<code>VERSION</code>、架构为<code>ARCH</code>的原始qcow2镜像<br>  (b). (arm镜像)配置<a target="_blank" rel="noopener" href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/enhanced-networking-ena.html">ena.ko</a>使能<br>  (c). 通过<code>aws_resize.sh</code>脚本resize该qcow2镜像并转换格式为RAW<br>  (d). 通过<a target="_blank" rel="noopener" href="https://aws.amazon.com/cn/cli/">AWS CLI</a>将处理后的RAW镜像upload到AWS S3存储桶<code>BUCKET</code>中<br>以上操作均在本地完成，得到制作AMI的基础镜像。</p>
+<p><strong>2. build阶段</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># build命令</span><br><span class="line">eulerpublisher -v &#123;VERSION&#125; -a &#123;ARCH&#125; -b &#123;BUCKET&#125; -r &#123;REGION&#125; -p &#123;RPMLIST&#125;</span><br></pre></td></tr></table></figure>
+<p>eulerpublisher通过<a target="_blank" rel="noopener" href="http://www.packer.io/">packer</a>在prepare的结果之上实现对AMI的定制，具体处理如下<br>  (e). 使用packer启动<code>REGION</code>中存储桶<code>BUCKET</code>的 “基础云镜像” 虚拟机实例<br>  (f). 在虚拟机中安装基础软件包，删除 root 密码、禁用password登录等。<br>  (g). 最终制作的云镜像命名为openEuler-{VERSION}-{ARCH}-{DATETIME}-hvm<br>上述过程中需要准备好packer配置文件，packer配置文件的内容会由eulerpublisher进行填充。此外，若用户需要在最终镜像内预置软件包，需要提供<code>rpmlist</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"># x86镜像构建的packer配置文件</span><br><span class="line">&#123;</span><br><span class="line">    &quot;builders&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;type&quot;: &quot;amazon-ebs&quot;,</span><br><span class="line">            &quot;name&quot;: &quot;amazon-ebs-hvm-amd64&quot;,</span><br><span class="line">            &quot;region&quot;: &quot;ap-southeast-2&quot;,</span><br><span class="line">            &quot;ami_regions&quot;: [</span><br><span class="line">                &quot;ap-southeast-2&quot;</span><br><span class="line">            ],</span><br><span class="line">            &quot;source_ami&quot;: &quot;ami-0df315962e87a4cae&quot;,</span><br><span class="line">            &quot;instance_type&quot;: &quot;t3a.micro&quot;,</span><br><span class="line">            &quot;ssh_username&quot;: &quot;root&quot;,</span><br><span class="line">            &quot;ssh_password&quot;: &quot;openEuler12#$&quot;,</span><br><span class="line">            &quot;ami_name&quot;: &quot;openEuler-22.03-LTS-SP1-x86_64-20230719-hvm&quot;,</span><br><span class="line">            &quot;ena_support&quot;: &quot;true&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;provisioners&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;type&quot;: &quot;shell&quot;,</span><br><span class="line">            &quot;environment_vars&quot;: [</span><br><span class="line">            ],</span><br><span class="line">            &quot;script&quot;: &quot;aws_install.sh&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># rpmlist示例</span><br><span class="line">cloud-init</span><br><span class="line">wget</span><br><span class="line">tar</span><br><span class="line">telnet</span><br><span class="line">unzip</span><br><span class="line">curl</span><br><span class="line">...</span><br></pre></td></tr></table></figure></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/openEuler/">openEuler</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2023/07/20/ONNXRuntime%E5%85%A5%E9%97%A8-%E5%A6%82%E4%BD%95%E7%BC%96%E8%AF%91ONNXRuntime/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">ONNXRuntime入门 - 如何编译ONNXRuntime?</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2023/07/20/%E6%98%87%E8%85%BE%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%9B%BA%E4%BB%B6%E4%B8%8E%E9%A9%B1%E5%8A%A8%E5%AE%89%E8%A3%85/"><span class="level-item">昇腾虚拟机固件与驱动安装</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><div id="comment-container"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js"></script><script>var gitalk = new Gitalk({
+            id: "305fa1e4281d03c511a471dfe8de5fb6",
+            repo: "cosdt.github.io",
+            owner: "cosdt",
+            clientID: "REPLACEME",
+            clientSecret: "REPLACEME",
+            admin: "Yikun",
+            createIssueManually: false,
+            distractionFreeMode: false,
+            perPage: 10,
+            pagerDirection: "last",
+            
+            
+            enableHotKey: true,
+            
+        })
+        gitalk.render('comment-container')</script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/images/logo.jpeg" alt="计算开源团队技术博客"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">计算开源团队技术博客</p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">11</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">4</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/cosdt" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/cosdt"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/atom.xml"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://github.com/cosdt" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">COSDT主页</span></span><span class="level-right"><span class="level-item tag">github.com</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/images/logo.jpeg" alt="Computing Open Source Development Team Blog" height="28"></a><p class="is-size-7"><span>&copy; 2024 计算开源团队</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Our GitHub" href="https://github.com/cosdt"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>如何构建一个RPM包 - Computing Open Source Development Team Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Computing Open Source Development Team Blog"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Computing Open Source Development Team Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="构建一个RPM包1. rpmdevtools工具及SPEC文件一些基础点 可以直接从下一章节看网上找了好多相关的教程，RedHat的教程应该是最官方的。目前没找到如何生成压缩包的，本文使用setuptools生成还有说使用pyinstaller生成可执行文件然后获取其依赖并压缩的，没有测试这个"><meta property="og:type" content="article"><meta property="og:title" content="如何构建一个RPM包"><meta property="og:url" content="https://cosdt.github.io/2023/09/22/%E5%A6%82%E4%BD%95%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AARPM%E5%8C%85/"><meta property="og:site_name" content="Computing Open Source Development Team Blog"><meta property="og:description" content="构建一个RPM包1. rpmdevtools工具及SPEC文件一些基础点 可以直接从下一章节看网上找了好多相关的教程，RedHat的教程应该是最官方的。目前没找到如何生成压缩包的，本文使用setuptools生成还有说使用pyinstaller生成可执行文件然后获取其依赖并压缩的，没有测试这个"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://cosdt.github.io/img/og_image.png"><meta property="article:published_time" content="2023-09-22T06:11:57.000Z"><meta property="article:modified_time" content="2024-01-07T12:18:23.285Z"><meta property="article:author" content="计算开源团队"><meta property="article:tag" content="openEuler"><meta property="article:tag" content="RPM"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://cosdt.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://cosdt.github.io/2023/09/22/%E5%A6%82%E4%BD%95%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AARPM%E5%8C%85/"},"headline":"如何构建一个RPM包","image":["https://cosdt.github.io/img/og_image.png"],"datePublished":"2023-09-22T06:11:57.000Z","dateModified":"2024-01-07T12:18:23.285Z","author":{"@type":"Person","name":"计算开源团队"},"publisher":{"@type":"Organization","name":"Computing Open Source Development Team Blog","logo":{"@type":"ImageObject","url":"https://cosdt.github.io/images/logo.jpeg"}},"description":"构建一个RPM包1. rpmdevtools工具及SPEC文件一些基础点 可以直接从下一章节看网上找了好多相关的教程，RedHat的教程应该是最官方的。目前没找到如何生成压缩包的，本文使用setuptools生成还有说使用pyinstaller生成可执行文件然后获取其依赖并压缩的，没有测试这个"}</script><link rel="canonical" href="https://cosdt.github.io/2023/09/22/%E5%A6%82%E4%BD%95%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AARPM%E5%8C%85/"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.4.1/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/images/logo.jpeg" alt="Computing Open Source Development Team Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Our GitHub" href="https://github.com/cosdt"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-22T06:11:57.000Z" title="9/22/2023, 6:11:57 AM">2023-09-22</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-01-07T12:18:23.285Z" title="1/7/2024, 12:18:23 PM">2024-01-07</time></span></div></div><h1 class="title is-3 is-size-4-mobile">如何构建一个RPM包</h1><div class="content"><h2 id="构建一个RPM包"><a href="#构建一个RPM包" class="headerlink" title="构建一个RPM包"></a>构建一个RPM包</h2><h3 id="1-rpmdevtools工具及SPEC文件"><a href="#1-rpmdevtools工具及SPEC文件" class="headerlink" title="1. rpmdevtools工具及SPEC文件"></a><h3 id ="1">1. rpmdevtools工具及SPEC文件</h3></h3><p>一些基础点 可以直接从<a href="#2">下一章节</a>看<br>网上找了好多相关的教程，RedHat的教程应该是最官方的。<br>目前没找到如何生成压缩包的，本文使用setuptools生成<br>还有说使用pyinstaller生成可执行文件然后获取其依赖并压缩的，没有测试这个  </p>
+<span id="more"></span>
+
+<ol>
+<li><p>rpmdevtools工具</p>
+<p> 构建主要用的就是SPEC文件和源文件，将其放到对应的文件夹下执行构建命令<br> 首先创建RPM的工作环境，便捷的就是安装rpmdevtools工具<br> 执行rpmdev-setuptree命令后结果如下  </p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">rpmdev-setuptree</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">tree ~/rpmbuild/</span></span><br><span class="line">/root/rpmbuild/</span><br><span class="line">├── BUILD</span><br><span class="line">├── RPMS</span><br><span class="line">├── SOURCES</span><br><span class="line">├── SPECS</span><br><span class="line">└── SRPMS</span><br></pre></td></tr></table></figure>
+
+<p> 工作环境目录用途如下</p>
+<table>
+<thead>
+<tr>
+<th>目录</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>BUILD</td>
+<td>构建时生成的各种信息都在这里</td>
+</tr>
+<tr>
+<td>RPMS</td>
+<td>构建出的二进制包</td>
+</tr>
+<tr>
+<td>SOURCES</td>
+<td>构建用的源文件放这里，如压缩包、补丁文件等</td>
+</tr>
+<tr>
+<td>SPECS</td>
+<td>构建用的.spec文件放这里</td>
+</tr>
+<tr>
+<td>SRPMS</td>
+<td>构建出的源码包</td>
+</tr>
+<tr>
+<td>BUILDROOT</td>
+<td>构建过程中创建，保存%install阶段安装的文件</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>SPEC文件</p>
+<p> SPEC文件可以分为Preamble和Body两部分</p>
+<p> Preamble:</p>
+<table>
+<thead>
+<tr>
+<th>SPEC指令</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Name</td>
+<td>package name</td>
+</tr>
+<tr>
+<td>Version</td>
+<td>version number</td>
+</tr>
+<tr>
+<td>Release</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>Summary</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>License</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>URL</td>
+<td>该包的上游网址</td>
+</tr>
+<tr>
+<td>Source0</td>
+<td>源文件</td>
+</tr>
+<tr>
+<td>Patch0</td>
+<td>数量可变</td>
+</tr>
+<tr>
+<td>BuildArch</td>
+<td>构建依赖的环境</td>
+</tr>
+<tr>
+<td>BuildRequires</td>
+<td>构建所需的依赖包</td>
+</tr>
+<tr>
+<td>Requires</td>
+<td>运行所需的依赖包</td>
+</tr>
+</tbody></table>
+<p> Body:</p>
+<table>
+<thead>
+<tr>
+<th>SPEC指令</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>%description</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>%prep</td>
+<td>构建前的一些命令</td>
+</tr>
+<tr>
+<td>%build</td>
+<td>构建时执行的命令</td>
+</tr>
+<tr>
+<td>%install</td>
+<td>最终安装目录</td>
+</tr>
+<tr>
+<td>%check</td>
+<td>测试软件命令</td>
+</tr>
+<tr>
+<td>%files</td>
+<td>最终会安装在系统的文件</td>
+</tr>
+<tr>
+<td>%changelog</td>
+<td>NA</td>
+</tr>
+</tbody></table>
+</li>
+</ol>
+<h3 id="2-构建一个简单的hello-world-rpm包"><a href="#2-构建一个简单的hello-world-rpm包" class="headerlink" title="2.构建一个简单的hello world rpm包"></a><h3 id ="2">2.构建一个简单的hello world rpm包</h3></h3><ol>
+<li><p>编写py文件</p>
+<p> 还是最通用的hello world</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/usr/bin/python</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line">def my_print():</span><br><span class="line">    print(&#x27;hello world&#x27;)</span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    my_print()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编写setup.py文件</p>
+<p> 前面是license 命令是setuptools.setup<br> setup中哪些可以不需要还没有完全搞清楚，当前这样没有问题</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Copyright (c) 2013 Hewlett-Packard Development Company, L.P.</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash"><span class="comment"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">you may not use this file except <span class="keyword">in</span> compliance with the License.</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">You may obtain a copy of the License at</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash"><span class="comment">#    http://www.apache.org/licenses/LICENSE-2.0</span></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash"><span class="comment"># Unless required by applicable law or agreed to in writing, software</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">distributed under the License is distributed on an <span class="string">&quot;AS IS&quot;</span> BASIS,</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">implied.</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">See the License <span class="keyword">for</span> the specific language governing permissions and</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">limitations under the License.</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">THIS FILE IS MANAGED BY THE GLOBAL REQUIREMENTS REPO - DO NOT EDIT</span></span><br><span class="line"></span><br><span class="line">import setuptools</span><br><span class="line"></span><br><span class="line">setuptools.setup(</span><br><span class="line">    name=&#x27;myrpm&#x27;,</span><br><span class="line">    version=&#x27;0.1.1&#x27;,</span><br><span class="line">    license=&#x27;Apache License 2.0&#x27;,</span><br><span class="line">    classifiers=[</span><br><span class="line">        &#x27;Development Status :: 5 - Production/Stable&#x27;,</span><br><span class="line">        &#x27;Intended Audience :: Developers&#x27;,</span><br><span class="line">        &#x27;License :: OSI Approved :: Apache Software License&#x27;,</span><br><span class="line">        &#x27;Programming Language :: Python :: 3.7&#x27;,</span><br><span class="line">        &#x27;Programming Language :: Python :: 3.8&#x27;,</span><br><span class="line">        &#x27;Programming Language :: Python :: 3.9&#x27;,</span><br><span class="line">        &#x27;Programming Language :: Python :: Implementation :: PyPy&#x27;,</span><br><span class="line">        &#x27;Topic :: Software Development :: Libraries :: Python Modules&#x27;,</span><br><span class="line">    ],</span><br><span class="line">    packages=[&#x27;myrpm&#x27;],</span><br><span class="line">    include_package_data=True,</span><br><span class="line">    zip_safe=False,</span><br><span class="line">    platforms=&#x27;any&#x27;,</span><br><span class="line">)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>目录结构</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">python-myrpm/</span><br><span class="line">├── myrpm</span><br><span class="line">│   ├── __init__.py</span><br><span class="line">│   └── myrpm.py</span><br><span class="line">└── setup.py</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成压缩包</p>
+<p> 在python-myrpm&#x2F;目录下执行</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python setup.py sdist</span><br></pre></td></tr></table></figure>
+<p> 执行后目录如下 生成了myrpm-0.1.1.tar.gz压缩文件<br> 感兴趣可以解压看看 我们就使用这个压缩文件作为源码构建RPM包</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">python-myrpm/</span><br><span class="line">├── dist</span><br><span class="line">│   └── myrpm-0.1.1.tar.gz</span><br><span class="line">├── myrpm</span><br><span class="line">│   ├── __init__.py</span><br><span class="line">│   └── myrpm.py</span><br><span class="line">├── myrpm.egg-info</span><br><span class="line">│   ├── dependency_links.txt</span><br><span class="line">│   ├── not-zip-safe</span><br><span class="line">│   ├── PKG-INFO</span><br><span class="line">│   ├── SOURCES.txt</span><br><span class="line">│   └── top_level.txt</span><br><span class="line">└── setup.py</span><br></pre></td></tr></table></figure>
+
+<p> 对应的还有一些其他命令，install是使用源码安装、build是构建、<br> clean是清理build和bdist生产的临时目录、bdist是生成二进制压缩包、<br> sdist是源码压缩包，–formats可以指定压缩包格式</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">python setup.py build</span><br><span class="line">python setup.py install</span><br><span class="line">python setup.py clean</span><br><span class="line">python setup.py bdist</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>制作SPEC文件</p>
+<p> 优先使用工具创建 在SPECS目录下执行如下命令 生成myrpm.spec文件</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpmdev-newspec  myrpm.spec</span><br></pre></td></tr></table></figure>
+
+<p> 修改SPEC文件如下</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">%</span><span class="language-bash">global debug_package %&#123;nil&#125;</span></span><br><span class="line">Name:           myrpm</span><br><span class="line">Version:        0.1.1</span><br><span class="line">Release:        1</span><br><span class="line">Summary:        simple python rpm</span><br><span class="line"></span><br><span class="line">License:        Apache-2.0</span><br><span class="line">URL:            https://docs.openstack.org/tooz/latest/</span><br><span class="line">Source0:        myrpm-0.1.1.tar.gz</span><br><span class="line">BuildArch:      noarch</span><br><span class="line">BuildRequires:  python3-setuptools</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">description</span></span><br><span class="line">A simple python rpm</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">prep</span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">autosetup -n %&#123;name&#125;-%&#123;version&#125;</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">build</span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">py3_build</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">install</span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">py3_install</span></span><br><span class="line"></span><br><span class="line">pushd %&#123;buildroot&#125;</span><br><span class="line">if [ -d usr/lib ]; then</span><br><span class="line">    find usr/lib -type f -printf &quot;/%h/%f\n&quot; &gt;&gt; filelist.lst</span><br><span class="line">fi</span><br><span class="line">popd</span><br><span class="line">mv %&#123;buildroot&#125;/filelist.lst .</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">files -n %&#123;name&#125; -f filelist.lst</span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash"><span class="built_in">dir</span> %&#123;python3_sitelib&#125;/*</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">changelog</span></span><br><span class="line">* Thu Sep 21 2023 XXX &lt;XXX@gmail.com&gt;</span><br><span class="line">- init</span><br></pre></td></tr></table></figure>
+<p> 其中<br> %global debug_package %{nil} 是缺少debug相关文件 当前不关注使用该命令忽略其报错<br> Source0填充包名<br> %prep 填充%autosetup -n %{name}-%{version}<br> %build 填充%py3_build<br> %install 填充%py3_install<br> pushd 这里是把最终会安装在系统的文件写入到filelist.lst中<br> %file 是指明哪些文件会安装在系统，如果有遗漏，构建是会提示<br> ‘error: Installed (but unpackaged) file(s) found’的报错<br> %license 和 %doc 当前不关注忽略</p>
+<p> 对SPEC文件中更高级的修改需要进一步探索</p>
+</li>
+<li><p>构建RPM包</p>
+<p> 把第4步和第5步中的源码压缩包、SPEC文件分别放到SOURCE和SPECS目录下  </p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">~/rpmbuild</span><br><span class="line">├── BUILD</span><br><span class="line">├── RPMS</span><br><span class="line">├── SOURCES</span><br><span class="line">│   └── myrpm-0.1.1.tar.gz</span><br><span class="line">├── SPECS</span><br><span class="line">│   └── myrpm.spec</span><br><span class="line">└── SRPMS</span><br></pre></td></tr></table></figure>
+<p> 在SPECS目录下执行rpmbuild命令  </p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpmbuild -ba myrpm.spec</span><br></pre></td></tr></table></figure>
+<p> 构建成功后使用如下命令查询结果</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tree /root/rpmbuild/*RPMS</span><br><span class="line">/root/rpmbuild/RPMS</span><br><span class="line">└── noarch</span><br><span class="line">    └── myrpm-0.1.1-1.noarch.rpm</span><br><span class="line">/root/rpmbuild/SRPMS</span><br><span class="line">└── myrpm-0.1.1-1.src.rpm</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RPM包使用</p>
+<p> 使用rpm -ivh <pkg> 安装rpm包，安装后就可以import了<br> 使用rpm -qa | grep <pkg> 查询安装的包<br> 使用rpm -e <pkg> 卸载安装的包<br> 当前发现卸载是会在&#x2F;usr&#x2F;lib&#x2F;python3.9&#x2F;site-packages&#x2F;中残留__pycache__文件夹<br> 暂时无法解决，试了下别的包也有这个问题</p>
+</li>
+</ol>
+<h3 id="3-增量构建RPM包"><a href="#3-增量构建RPM包" class="headerlink" title="3.增量构建RPM包"></a><h3 id ="3">3.增量构建RPM包</h3></h3><p>增量构建可能描述的不准确，实际上是以git.patch的形式添加自己对已有RPM包的修改，然后构建</p>
+<p>这种构建要使用源码包<br>RPM包一般分为二进制和源码包(后缀为.src.rpm)<br>包名中noarch字段表示无环境依赖  </p>
+<p>源码包可以通过rpm2cpio命令解压.src.rpm的包得到<br>也可以找到相关的SPEC文件，通过URL获取对应的压缩包</p>
+<p>以上一章节中构建的RPM包为例，更改my_print的打印内容  </p>
+<ol>
+<li><p>解压rpm包获取源码压缩包</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">rpm2cpio myrpm-0.1.1-1.src.rpm | cpio -div -D srcrpm</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">tree</span></span><br><span class="line">.</span><br><span class="line">└── srcrpm</span><br><span class="line">    ├── myrpm-0.1.1.tar.gz</span><br><span class="line">    └── myrpm.spec</span><br></pre></td></tr></table></figure>
+
+<p> 其中 -D 参数为指定解压的目录  </p>
+</li>
+<li><p>解压源码</p>
+<p> 解压后进入到myrpm目录</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">tar -vxf myrpm-0.1.1.tar.gz</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">tree</span></span><br><span class="line">srcrpm/</span><br><span class="line">├── myrpm-0.1.1</span><br><span class="line">│   ├── myrpm</span><br><span class="line">│   │   ├── __init__.py</span><br><span class="line">│   │   └── myrpm.py</span><br><span class="line">│   ├── myrpm.egg-info</span><br><span class="line">│   │   ├── dependency_links.txt</span><br><span class="line">│   │   ├── not-zip-safe</span><br><span class="line">│   │   ├── PKG-INFO</span><br><span class="line">│   │   ├── SOURCES.txt</span><br><span class="line">│   │   └── top_level.txt</span><br><span class="line">│   ├── PKG-INFO</span><br><span class="line">│   ├── setup.cfg</span><br><span class="line">│   └── setup.py</span><br><span class="line">├── myrpm-0.1.1.tar.gz</span><br><span class="line">└── myrpm.spec</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成git patch文件</p>
+<p> 当前在srcrpm&#x2F;myrpm-0.1.1&#x2F;myrpm目录，示例如下  </p>
+<ol>
+<li>选择要修改的文件初始化git仓  </li>
+<li>完成你的修改，且不要add  </li>
+<li>git diff生成补丁文件   <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">git init</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">git add myrpm.py</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">git commit -m <span class="string">&quot;init&quot;</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">vi myrpm.py</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">git diff myrpm.py &gt; myrpm.patch</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">tree</span></span><br><span class="line">.</span><br><span class="line">├── __init__.py</span><br><span class="line">├── myrpm.patch</span><br><span class="line">└── myrpm.py</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>修改SPEC文件</p>
+<p> 需要修改或者添加的字段如下：</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">index 5869db2..cb7fcb8 100644</span><br><span class="line">--- a/myrpm.spec</span><br><span class="line">+++ b/myrpm.spec</span><br><span class="line">@@ -1,12 +1,13 @@</span><br><span class="line">Name:           myrpm</span><br><span class="line">Version:        0.1.1</span><br><span class="line">-Release:        1</span><br><span class="line">+Release:        2</span><br><span class="line">Summary:        simple python rpm</span><br><span class="line"></span><br><span class="line">License:        Apache-2.0</span><br><span class="line">URL:            https://docs.openstack.org/tooz/latest/</span><br><span class="line">Source0:        myrpm-0.1.1.tar.gz</span><br><span class="line">+Patch01:        myrpm.patch</span><br><span class="line">BuildArch:      noarch</span><br><span class="line">BuildRequires:  python3-setuptools</span><br><span class="line"></span><br><span class="line">@@ -15,7 +16,7 @@ BuildRequires:  python3-setuptools</span><br><span class="line">A simple python rpm</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">prep</span></span><br><span class="line"><span class="meta prompt_">-%</span><span class="language-bash">autosetup -n %&#123;name&#125;-%&#123;version&#125;</span></span><br><span class="line">+%autosetup -n %&#123;name&#125;-%&#123;version&#125; -p1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">build</span></span><br><span class="line">@@ -38,5 +39,8 @@ mv %&#123;buildroot&#125;/filelist.lst .</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">changelog</span></span><br><span class="line">+* Fri Sep 22 2023 xxx &lt;xxx@gmail.com&gt; - 0.1.1-2</span><br><span class="line">+- change print content</span><br><span class="line">+</span><br><span class="line">* Thu Sep 21 2023 xxx &lt;xxx@gmail.com&gt; - 0.1.1-1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>构建</p>
+<p> 构建时将patch文件补充到SOURCES目录中，其他与上一章节相同<br> 如果遇到’No file to patch.  Skipping patch.’的报错<br> 大概率是patch文件中的目录有问题<br> 如当前示例中，patch文件中的目录为a&#x2F;myrpm.py和b&#x2F;myrpm.py<br> 并且构建是会报错，将目录改为a&#x2F;myrpm&#x2F;myrpm.py和b&#x2F;myrpm&#x2F;myrpm.py即可</p>
+</li>
+</ol>
+<h3 id="4-部分宏的对应值"><a href="#4-部分宏的对应值" class="headerlink" title="4.部分宏的对应值"></a><h3 id ="4">4.部分宏的对应值</h3></h3><table>
+<thead>
+<tr>
+<th>宏</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>%{_sysconfdir}</td>
+<td>&#x2F;etc</td>
+</tr>
+<tr>
+<td>%{_prefix}</td>
+<td>&#x2F;usr</td>
+</tr>
+<tr>
+<td>%{_exec_prefix}</td>
+<td>%{_prefix}</td>
+</tr>
+<tr>
+<td>%{_bindir}</td>
+<td>%{_exec_prefix}&#x2F;bin</td>
+</tr>
+<tr>
+<td>%{_lib}</td>
+<td>lib (lib64 on 64bit systems)</td>
+</tr>
+<tr>
+<td>%{_libdir}</td>
+<td>%{_exec_prefix}&#x2F;%{_lib}</td>
+</tr>
+<tr>
+<td>%{_libexecdir}</td>
+<td>%{_exec_prefix}&#x2F;libexec</td>
+</tr>
+<tr>
+<td>%{_sbindir}</td>
+<td>%{_exec_prefix}&#x2F;sbin</td>
+</tr>
+<tr>
+<td>%{_sharedstatedir}</td>
+<td>&#x2F;var&#x2F;lib</td>
+</tr>
+<tr>
+<td>%{_datadir}</td>
+<td>%{_prefix}&#x2F;share</td>
+</tr>
+<tr>
+<td>%{_includedir}</td>
+<td>%{_prefix}&#x2F;include</td>
+</tr>
+<tr>
+<td>%{_oldincludedir}</td>
+<td>&#x2F;usr&#x2F;include</td>
+</tr>
+<tr>
+<td>%{_infodir}</td>
+<td>&#x2F;usr&#x2F;share&#x2F;info</td>
+</tr>
+<tr>
+<td>%{_mandir}</td>
+<td>&#x2F;usr&#x2F;share&#x2F;man</td>
+</tr>
+<tr>
+<td>%{_localstatedir}</td>
+<td>&#x2F;var</td>
+</tr>
+<tr>
+<td>%{_topdir}</td>
+<td>%{getenv:HOME}&#x2F;rpmbuild</td>
+</tr>
+<tr>
+<td>%{_builddir}</td>
+<td>%{_topdir}&#x2F;BUILD</td>
+</tr>
+<tr>
+<td>%{_rpmdir}</td>
+<td>%{_topdir}&#x2F;RPMS</td>
+</tr>
+<tr>
+<td>%{_sourcedir}</td>
+<td>%{_topdir}&#x2F;SOURCES</td>
+</tr>
+<tr>
+<td>%{_specdir}</td>
+<td>%{_topdir}&#x2F;SPECS</td>
+</tr>
+<tr>
+<td>%{_srcrpmdir}</td>
+<td>%{_topdir}&#x2F;SRPMS</td>
+</tr>
+<tr>
+<td>%{_buildrootdir}</td>
+<td>%{_topdir}&#x2F;BUILDROOT</td>
+</tr>
+<tr>
+<td>%{_var}</td>
+<td>&#x2F;var</td>
+</tr>
+<tr>
+<td>%{_tmppath}</td>
+<td>%{_var}&#x2F;tmp</td>
+</tr>
+<tr>
+<td>%{_usr}</td>
+<td>&#x2F;usr</td>
+</tr>
+<tr>
+<td>%{_usrsrc}</td>
+<td>%{_usr}&#x2F;src</td>
+</tr>
+<tr>
+<td>%{_docdir}</td>
+<td>%{_datadir}&#x2F;doc</td>
+</tr>
+</tbody></table>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/openEuler/">openEuler</a><a class="link-muted mr-2" rel="tag" href="/tags/RPM/">RPM</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2023/11/01/%E5%A6%82%E4%BD%95%E9%83%A8%E7%BD%B2OpenStack/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">如何部署OpenStack</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2023/09/01/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%BC%96%E8%AF%91OpenCV-NPU%E6%95%99%E7%A8%8B/"><span class="level-item">从零开始编译OpenCV NPU教程</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><div id="comment-container"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js"></script><script>var gitalk = new Gitalk({
+            id: "28b9b320a1a373eb3b569e0e6e0c5646",
+            repo: "cosdt.github.io",
+            owner: "cosdt",
+            clientID: "REPLACEME",
+            clientSecret: "REPLACEME",
+            admin: "Yikun",
+            createIssueManually: false,
+            distractionFreeMode: false,
+            perPage: 10,
+            pagerDirection: "last",
+            
+            
+            enableHotKey: true,
+            
+        })
+        gitalk.render('comment-container')</script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/images/logo.jpeg" alt="计算开源团队技术博客"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">计算开源团队技术博客</p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">11</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">4</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/cosdt" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/cosdt"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/atom.xml"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://github.com/cosdt" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">COSDT主页</span></span><span class="level-right"><span class="level-item tag">github.com</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/images/logo.jpeg" alt="Computing Open Source Development Team Blog" height="28"></a><p class="is-size-7"><span>&copy; 2024 计算开源团队</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Our GitHub" href="https://github.com/cosdt"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

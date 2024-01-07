@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>OpenCV社区洞察 - Computing Open Source Development Team Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Computing Open Source Development Team Blog"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Computing Open Source Development Team Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="OpenCV背景OpenCV是1998年在Intel公司内的CVL(计算机视觉库)项目，由Gary Bradski发起，并由Vadim Pisarevsky担任技术主管，于1999年开源，2000年首次公开发布。2008年OpenCV的核心成员加入Willow Garage和Itseez公司继续开发。Itseez公司在2016年被Intel收购，核心开发团队重回Intel。 目前主要由Intel公"><meta property="og:type" content="article"><meta property="og:title" content="OpenCV社区洞察"><meta property="og:url" content="https://cosdt.github.io/2023/08/31/OpenCV%E7%A4%BE%E5%8C%BA%E6%B4%9E%E5%AF%9F/"><meta property="og:site_name" content="Computing Open Source Development Team Blog"><meta property="og:description" content="OpenCV背景OpenCV是1998年在Intel公司内的CVL(计算机视觉库)项目，由Gary Bradski发起，并由Vadim Pisarevsky担任技术主管，于1999年开源，2000年首次公开发布。2008年OpenCV的核心成员加入Willow Garage和Itseez公司继续开发。Itseez公司在2016年被Intel收购，核心开发团队重回Intel。 目前主要由Intel公"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://cosdt.github.io/img/og_image.png"><meta property="article:published_time" content="2023-08-31T08:20:58.000Z"><meta property="article:modified_time" content="2024-01-07T12:18:23.285Z"><meta property="article:author" content="计算开源团队"><meta property="article:tag" content="Ascend"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://cosdt.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://cosdt.github.io/2023/08/31/OpenCV%E7%A4%BE%E5%8C%BA%E6%B4%9E%E5%AF%9F/"},"headline":"OpenCV社区洞察","image":["https://cosdt.github.io/img/og_image.png"],"datePublished":"2023-08-31T08:20:58.000Z","dateModified":"2024-01-07T12:18:23.285Z","author":{"@type":"Person","name":"计算开源团队"},"publisher":{"@type":"Organization","name":"Computing Open Source Development Team Blog","logo":{"@type":"ImageObject","url":"https://cosdt.github.io/images/logo.jpeg"}},"description":"OpenCV背景OpenCV是1998年在Intel公司内的CVL(计算机视觉库)项目，由Gary Bradski发起，并由Vadim Pisarevsky担任技术主管，于1999年开源，2000年首次公开发布。2008年OpenCV的核心成员加入Willow Garage和Itseez公司继续开发。Itseez公司在2016年被Intel收购，核心开发团队重回Intel。 目前主要由Intel公"}</script><link rel="canonical" href="https://cosdt.github.io/2023/08/31/OpenCV%E7%A4%BE%E5%8C%BA%E6%B4%9E%E5%AF%9F/"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.4.1/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/images/logo.jpeg" alt="Computing Open Source Development Team Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Our GitHub" href="https://github.com/cosdt"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-08-31T08:20:58.000Z" title="8/31/2023, 8:20:58 AM">2023-08-31</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-01-07T12:18:23.285Z" title="1/7/2024, 12:18:23 PM">2024-01-07</time></span></div></div><h1 class="title is-3 is-size-4-mobile">OpenCV社区洞察</h1><div class="content"><h2 id="OpenCV背景"><a href="#OpenCV背景" class="headerlink" title="OpenCV背景"></a>OpenCV背景</h2><p>OpenCV是1998年在Intel公司内的CVL(计算机视觉库)项目，由Gary Bradski发起，并由<a target="_blank" rel="noopener" href="https://github.com/vpisarev">Vadim Pisarevsky</a>担任技术主管，于1999年开源，2000年首次公开发布。2008年OpenCV的核心成员加入<a target="_blank" rel="noopener" href="http://www.willowgarage.com/">Willow Garage</a>和<a target="_blank" rel="noopener" href="https://itseez3d.com/">Itseez</a>公司继续开发。Itseez公司在2016年被Intel收购，核心开发团队重回Intel。</p>
+<p>目前主要由Intel公司赞助OpenCV核心开发团队，并且很多OpenCV的开发者是Intel的雇员。这是一个由Intel公司主导，OpenCV.org非盈利基金会运营的开源项目。2019年以来，核心开发团队由Intel，OpenCV中国团队和<a target="_blank" rel="noopener" href="https://www.xperience.ai/">xperience.ai</a>公司组成。</p>
+<span id="more"></span>
+
+<h2 id="版本发布策略"><a href="#版本发布策略" class="headerlink" title="版本发布策略"></a>版本发布策略</h2><p>目前每6个月发布一次版本，社区没有明确说明每个版本的生命周期。</p>
+<p><strong>4.x版本</strong></p>
+<table>
+<thead>
+<tr>
+<th>版本号</th>
+<th>发布时间</th>
+<th>时间间隔</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>4.8.0</td>
+<td>2023.6.29</td>
+<td>\</td>
+</tr>
+<tr>
+<td>4.7.0</td>
+<td>2022.12.28</td>
+<td>6个月</td>
+</tr>
+<tr>
+<td>4.6.0</td>
+<td>2022.6.7</td>
+<td>6个月</td>
+</tr>
+<tr>
+<td>4.5.5</td>
+<td>2021.12.25</td>
+<td>6个月</td>
+</tr>
+<tr>
+<td>4.5.4</td>
+<td>2021.10.10</td>
+<td>2个月</td>
+</tr>
+<tr>
+<td>4.5.3</td>
+<td>2021.7.6</td>
+<td>3个月</td>
+</tr>
+<tr>
+<td>4.5.2</td>
+<td>2021.4.3</td>
+<td>3个月</td>
+</tr>
+<tr>
+<td>4.5.1</td>
+<td>2020.12.22</td>
+<td>4个月</td>
+</tr>
+<tr>
+<td>4.5.0</td>
+<td>2020.10.12</td>
+<td>2个月</td>
+</tr>
+</tbody></table>
+<p>4.0.0版本发布于2018.11.18。</p>
+<p><strong>3.x版本</strong></p>
+<table>
+<thead>
+<tr>
+<th>版本号</th>
+<th>发布时间</th>
+<th>时间间隔</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3.4.20</td>
+<td>2023.6.27（仅打Tag）</td>
+<td>\</td>
+</tr>
+<tr>
+<td>3.4.19</td>
+<td>2022.12.27（仅打Tag）</td>
+<td>6个月</td>
+</tr>
+<tr>
+<td>3.4.18</td>
+<td>2022.6.5（仅打Tag）</td>
+<td>6个月</td>
+</tr>
+<tr>
+<td>3.4.17</td>
+<td>2021.12.25（仅打Tag）</td>
+<td>6个月</td>
+</tr>
+<tr>
+<td>3.4.16</td>
+<td>2021.10.10</td>
+<td>2个月</td>
+</tr>
+<tr>
+<td>3.4.15</td>
+<td>2021.7.6</td>
+<td>3个月</td>
+</tr>
+<tr>
+<td>3.4.14</td>
+<td>2021.4.2</td>
+<td>3个月</td>
+</tr>
+<tr>
+<td>3.4.13</td>
+<td>2020.12.22</td>
+<td>4个月</td>
+</tr>
+<tr>
+<td>3.4.12</td>
+<td>2020.10.12</td>
+<td>2个月</td>
+</tr>
+</tbody></table>
+<p>3.x版本最新的一个release版本3.4.16发布时间为2021.10，最后一个tag版本3.4.20发布时间为2021.6。</p>
+<p>3.0发布于2015.6.24。</p>
+<p><strong>2.x版本</strong></p>
+<p>2.x版本的最新一个release版本是2.4.13.6，发布于2018.2.26，从发布时间上看，已经不再维护。</p>
+<p><strong>社区没有明确说明每个大版本的支持周期</strong></p>
+<h2 id="OpenCV基金会"><a href="#OpenCV基金会" class="headerlink" title="OpenCV基金会"></a>OpenCV基金会</h2><h3 id="领导团队"><a href="#领导团队" class="headerlink" title="领导团队"></a>领导团队</h3><ul>
+<li><p>Gary Bradski (Itseez, Intel）</p>
+</li>
+<li><p>Anna Petrovicheva (Intel)</p>
+</li>
+<li><p>Vladimir Dudnik (Intel)</p>
+</li>
+<li><p>Stefano Fabri (Deeper)</p>
+</li>
+<li><p>Tatiana Khanova (Xperience.ai)</p>
+</li>
+<li><p>Satya Mallick (OpenCV CEO)</p>
+</li>
+<li><p>Vadim Pisarevsky (Huawei)</p>
+</li>
+<li><p>Vincent Rabaud (Google)</p>
+</li>
+<li><p>Edgar Riba (farm-ng)</p>
+</li>
+<li><p>Aleksandr Voron (N&#x2F;A)</p>
+</li>
+</ul>
+<p>领导团队（leadership meeting)，每周三 8:00 am, 太平洋时间，通过<a target="_blank" rel="noopener" href="https://hangouts.google.com/">Hangouts</a>沟通，会议纪要记录在<a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/wiki/Meeting_notes">github的wiki上</a>。</p>
+<h3 id="开发团队和贡献者社区"><a href="#开发团队和贡献者社区" class="headerlink" title="开发团队和贡献者社区"></a>开发团队和贡献者社区</h3><p><strong><a target="_blank" rel="noopener" href="https://github.com/opencv/">github</a>社区活跃开发者</strong></p>
+<table>
+<thead>
+<tr>
+<th>姓名</th>
+<th>社区职位</th>
+<th>就职公司</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/asmorkalov">Alexander Smorkalov</a></td>
+<td>活跃commitor，合入PR数量众多</td>
+<td>Xperience.AI</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/vpisarev">Vadim Pisarevsky</a></td>
+<td>OpenCV技术负责人</td>
+<td>华为</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/alalek">Alexander Alekhin</a></td>
+<td>活跃开发者，reviewer，commitor</td>
+<td>Intel</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/ilya-lavrenov">Ilya Lavrenov</a></td>
+<td>活跃开发者</td>
+<td>Itseez CTO</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/dkurt">Dmitry Kurtaev</a></td>
+<td>活跃开发者，reviewer，commitor</td>
+<td>YADRO</td>
+</tr>
+<tr>
+<td>… …</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>小粒度特性和bug fix可以用<a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/issues">issue</a>跟踪，大粒度特性需要有<a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/wiki/Evolution-Proposals">进化提案</a>跟踪。贡献社区需要参考OpenCV社区的<a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/wiki/How_to_contribute">贡献指导</a>，所提交的代码需要符合社区编码<a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/wiki/Coding_Style_Guide">规范</a>。</p>
+<p><strong>领域主席</strong></p>
+<table>
+<thead>
+<tr>
+<th>领域</th>
+<th>姓名</th>
+<th>单位</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RISC-V</td>
+<td>Mingjie Xing</td>
+<td>中国科学院软件研究所</td>
+</tr>
+<tr>
+<td>人脸识别与分析</td>
+<td>Weihong Deng</td>
+<td>北京邮电大学</td>
+</tr>
+<tr>
+<td>人体检测</td>
+<td>Andrea Pennisi</td>
+<td>University of Antwerp</td>
+</tr>
+<tr>
+<td>图像增强</td>
+<td>Zhangyang “Atlas” Wang</td>
+<td>The University of Texas at Austin</td>
+</tr>
+<tr>
+<td>形状检测</td>
+<td>Qi Jia</td>
+<td>大连理工大学</td>
+</tr>
+<tr>
+<td>文档</td>
+<td>Dr. Vikas Ramachandra</td>
+<td>Columbia University in the City of New York</td>
+</tr>
+<tr>
+<td>辅助技术</td>
+<td>Jagadish Mahendran</td>
+<td>Bovi.ag</td>
+</tr>
+</tbody></table>
+<p><strong>官方<a target="_blank" rel="noopener" href="https://forum.opencv.org/">论坛</a></strong></p>
+<p>社区交流可以在官方论坛上互动。</p>
+<h3 id="OpenCV合作伙伴"><a href="#OpenCV合作伙伴" class="headerlink" title="OpenCV合作伙伴"></a>OpenCV合作伙伴</h3><ul>
+<li>Intell, OpenCV 白金会员</li>
+<li>黄金会员：Microsoft Azure, Google summer of Code, FUTUREWEI, 华为（成为黄金会员方式：捐献十万美金，开发者或者其他资源）</li>
+<li>发展合作伙伴：KHADAS, ORBBEC, RunPod</li>
+</ul>
+<p>合作联系方式：<a href="mailto:&#99;&#x6f;&#x6e;&#116;&#x61;&#x63;&#x74;&#64;&#x6f;&#x70;&#101;&#x6e;&#99;&#118;&#46;&#97;&#x69;">&#99;&#x6f;&#x6e;&#116;&#x61;&#x63;&#x74;&#64;&#x6f;&#x70;&#101;&#x6e;&#99;&#118;&#46;&#97;&#x69;</a>（美国），<a href="mailto:&#97;&#x64;&#x6d;&#105;&#x6e;&#64;&#111;&#x70;&#101;&#110;&#x63;&#x76;&#x2e;&#111;&#114;&#x67;&#46;&#99;&#x6e;">&#97;&#x64;&#x6d;&#105;&#x6e;&#64;&#111;&#x70;&#101;&#110;&#x63;&#x76;&#x2e;&#111;&#114;&#x67;&#46;&#99;&#x6e;</a> （中国）</p>
+<h3 id="OpenCV中国团队"><a href="#OpenCV中国团队" class="headerlink" title="OpenCV中国团队"></a>OpenCV中国团队</h3><p>OpenCV中国团队于2019年9月成立， 非营利目的，致力于OpenCV的开发、维护和推广工作。OpenCV中国团队由OpenCV项目发起人Gary Bradski担任团队顾问，OpenCV技术负责人<a target="_blank" rel="noopener" href="https://github.com/vpisarev">Vadim Pisarevsky</a>领导技术开发，OpenCV中文社区创始人于仕琪博士担任团队负责人。</p>
+<p>国内负责人和核心开发成员均为<a target="_blank" rel="noopener" href="https://faculty.sustech.edu.cn/?cat=2&tagid=yusq&orderby=date&iscss=1&snapid=1&go=1">于仕琪博士团队</a>，并且是于仕琪的研究助理，主要社区提交为DNN相关内容。</p>
+<table>
+<thead>
+<tr>
+<th>姓名</th>
+<th>职位</th>
+<th>github id</th>
+<th>OpenCV贡献</th>
+<th>社区职位</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>吴佳</td>
+<td>研究助理</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/kaingwade">kaingwade</a></td>
+<td><a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/pull/23531">1PR</a> <font color=green>38 ++</font> <font color=red>0–</font></td>
+<td>无</td>
+<td></td>
+</tr>
+<tr>
+<td>母自豪</td>
+<td>研究助理，2018级研究生</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/zihaomu">zihaomu</a></td>
+<td><a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/pulls?q=is:pr+is:closed+author:zihaomu">79PR</a> <font color=green>42,381 ++</font>  <font color=red>22,986 –</font></td>
+<td>reviewer</td>
+<td></td>
+</tr>
+<tr>
+<td>冯远滔</td>
+<td>研究助理，2018级研究生</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/fengyuentau">fengyuentau</a></td>
+<td><a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/pulls?q=is:pr+is:closed+author:fengyuentau">51PR</a> <font color=green>7,863 ++</font>  <font color=red>2,053 –</font></td>
+<td>reviewer</td>
+<td>DNN支持CANN后端作者</td>
+</tr>
+<tr>
+<td>钟万里</td>
+<td>研究助理</td>
+<td><a target="_blank" rel="noopener" href="https://github.com/WanliZhong">WanliZhong</a></td>
+<td><a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/pulls?q=is:pr+is:closed+author:WanliZhong">18PR</a> <font color=green>561 ++</font>  <font color=red>147 –</font></td>
+<td>reviewer</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>OpenCV欢迎外部公司<a target="_blank" rel="noopener" href="https://www.opencv.org.cn/?page_id=56">合作</a>，可由OpenCV中国团队指导，外部公司软件工程师开发，提交patch到OpenCV项目。可联系中国团队（<a href="mailto:&#97;&#x64;&#109;&#x69;&#110;&#x40;&#x6f;&#112;&#101;&#x6e;&#x63;&#118;&#x2e;&#111;&#x72;&#x67;&#x2e;&#x63;&#110;">&#97;&#x64;&#109;&#x69;&#110;&#x40;&#x6f;&#112;&#101;&#x6e;&#x63;&#118;&#x2e;&#111;&#x72;&#x67;&#x2e;&#x63;&#110;</a>）洽谈。其中提到了在不同硬件平台上的OpenCV的加速，契合昇腾使能的诉求。</p>
+<h3 id="社区运作方式"><a href="#社区运作方式" class="headerlink" title="社区运作方式"></a>社区运作方式</h3><ul>
+<li>代码仓库和版本控制：OpenCV代码托管在<a target="_blank" rel="noopener" href="https://github.com/opencv">github</a>上，使用git做版本管理，社区成员在这些仓库中提交代码和PR，有reviewer进行代码review，并最终由commitor合入代码。OpenCV有三个主要代码库：<ul>
+<li>opencv：opencv主要代码库，包含关键数据结构和成熟算法，HAL方式在此库以3rd_party的方式贡献</li>
+<li>opencv_contrib：opencv扩展模块库，依赖opencv_core，社区提交要求先进入此库，成熟后合入主库。cuda等算法均在此库，命名空间方式以独立模块方式在此库贡献</li>
+<li>opencv_extra：opencv扩展数据库，存放测试数据，供测试使用</li>
+</ul>
+</li>
+<li>讨论和沟通：OpenCV社区使用（邮件列表？未找到）<a target="_blank" rel="noopener" href="https://github.com/opencv">github</a>，<a target="_blank" rel="noopener" href="https://forum.opencv.org/">论坛</a>进行技术讨论和沟通</li>
+<li>问题追踪和解决：OpenCV使用github issue进行问题追踪：<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/issues">opencv</a> -  库和稳定模块的一般问题，与构建相关的问题</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/opencv/opencv_contrib/issues">opencv_contrib</a> -实验模块及其依赖项的问题</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/opencv-infrastructure/opencv.org/issues">opencv.org</a> - 官方网站的问题</li>
+</ul>
+</li>
+<li>文档和教程：最新的版本使用<a target="_blank" rel="noopener" href="https://docs.opencv.org/">Doxygen</a>来展示文档，其中包含了<a target="_blank" rel="noopener" href="https://docs.opencv.org/4.x/d9/df8/tutorial_root.html">使用教程</a></li>
+<li>社区活动和会议：开发者可以参与<a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/wiki/GSoC_2023">谷歌代码之夏</a>活动来提交新的想法和代码，社区领导团队每周三太平洋时间8:00 am在环聊上开展会议，并归档到<a href="(https://github.com/opencv/opencv/wiki/Meeting_notes)">wiki</a>上。</li>
+<li>教育和培训：社区联合<a target="_blank" rel="noopener" href="https://bigvision.ai/">Bigision</a>提供了许多在线<a target="_blank" rel="noopener" href="https://opencv.org/university/">课程</a>（收费），完成学习后可以获得毕业证书以及优秀证书，针对企业和组织也提供了培训计划。</li>
+</ul>
+<h2 id="昇腾接入方式"><a href="#昇腾接入方式" class="headerlink" title="昇腾接入方式"></a>昇腾接入方式</h2><h3 id="贡献开源方式"><a href="#贡献开源方式" class="headerlink" title="贡献开源方式"></a>贡献开源方式</h3><ol>
+<li>HAL：OpenCV在core，imgproc，feature2d这三个模块都提供了HAL机制，通过include <code>hal_replacement.hpp</code>替换相关宏定义，决定真正的执行后端。</li>
+<li>命名空间：使用独立模块，实现与cv相同的函数接口。使用命名空间的方式进行调用。</li>
+</ol>
+<p><strong>两种接入方式比较</strong></p>
+<table>
+<thead>
+<tr>
+<th>比较项</th>
+<th>HAL</th>
+<th>命名空间</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>实现成本</td>
+<td>低，进需要实现定义好的函数接口即可，不涉及Matrix对象，入参出参均为常见数据类型。</td>
+<td>较高，需要自定义实现NPU上的Mat结构，代码生成等相关工作。</td>
+</tr>
+<tr>
+<td>用户使用成本</td>
+<td>对用户完全透明，无缝替换。</td>
+<td>用户需要替换函数调用接口，有可能涉及Mat对象转换NPU Mat对象操作。</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>每个算子执行前后均涉及内存数据搬迁，无法异步执行，效率低。</td>
+<td>计算过程中算子无需搬迁，可使用异步执行，效率高。</td>
+</tr>
+<tr>
+<td>现有实现</td>
+<td>carotene，Nvdia实现的SIMD加速库。</td>
+<td>CUDA加速。</td>
+</tr>
+</tbody></table>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Ascend/">Ascend</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2023/09/01/%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E7%BC%96%E8%AF%91OpenCV-NPU%E6%95%99%E7%A8%8B/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">从零开始编译OpenCV NPU教程</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2023/08/18/%E5%AE%B9%E5%99%A8%E6%98%87%E8%85%BENPU%E8%B7%91%E9%80%9Allama2-7B/"><span class="level-item">容器昇腾NPU跑通llama2-7B</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><div id="comment-container"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js"></script><script>var gitalk = new Gitalk({
+            id: "13dcba48e2ccd38ad74f8ec0a38b4cdd",
+            repo: "cosdt.github.io",
+            owner: "cosdt",
+            clientID: "REPLACEME",
+            clientSecret: "REPLACEME",
+            admin: "Yikun",
+            createIssueManually: false,
+            distractionFreeMode: false,
+            perPage: 10,
+            pagerDirection: "last",
+            
+            
+            enableHotKey: true,
+            
+        })
+        gitalk.render('comment-container')</script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/images/logo.jpeg" alt="计算开源团队技术博客"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">计算开源团队技术博客</p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">11</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">4</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/cosdt" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/cosdt"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/atom.xml"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://github.com/cosdt" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">COSDT主页</span></span><span class="level-right"><span class="level-item tag">github.com</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/images/logo.jpeg" alt="Computing Open Source Development Team Blog" height="28"></a><p class="is-size-7"><span>&copy; 2024 计算开源团队</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Our GitHub" href="https://github.com/cosdt"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

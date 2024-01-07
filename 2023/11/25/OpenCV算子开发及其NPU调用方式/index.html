@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><title>OpenCV算子开发及其NPU调用方式 - Computing Open Source Development Team Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Computing Open Source Development Team Blog"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Computing Open Source Development Team Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="OpenCV目前通过调用CANN提供的接口的方式调用NPU，其中调用的接口主要包括数据内存的申请、拷贝和释放、算子执行。 了解CANNCANN的官方介绍：  CANN（Compute Architecture for Neural Networks）是华为针对AI场景推出的异构计算架构，对上支持多种AI框架，对下服务AI处理器与编程，发挥承上启下的关键作用，是提升昇腾AI处理器计算效率的关键平台。"><meta property="og:type" content="article"><meta property="og:title" content="OpenCV算子开发及其NPU调用方式"><meta property="og:url" content="https://cosdt.github.io/2023/11/25/OpenCV%E7%AE%97%E5%AD%90%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6NPU%E8%B0%83%E7%94%A8%E6%96%B9%E5%BC%8F/"><meta property="og:site_name" content="Computing Open Source Development Team Blog"><meta property="og:description" content="OpenCV目前通过调用CANN提供的接口的方式调用NPU，其中调用的接口主要包括数据内存的申请、拷贝和释放、算子执行。 了解CANNCANN的官方介绍：  CANN（Compute Architecture for Neural Networks）是华为针对AI场景推出的异构计算架构，对上支持多种AI框架，对下服务AI处理器与编程，发挥承上启下的关键作用，是提升昇腾AI处理器计算效率的关键平台。"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://github.com/cosdt/cosdt.github.io/assets/52243582/2072cc3f-ae03-4563-9c8c-091621176746"><meta property="og:image" content="https://github.com/cosdt/cosdt.github.io/assets/52243582/7fa18465-4c85-43c5-8735-928cdd743155"><meta property="article:published_time" content="2023-11-25T06:16:05.000Z"><meta property="article:modified_time" content="2024-01-07T12:18:23.285Z"><meta property="article:author" content="计算开源团队"><meta property="article:tag" content="Ascend"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://github.com/cosdt/cosdt.github.io/assets/52243582/2072cc3f-ae03-4563-9c8c-091621176746"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://cosdt.github.io/2023/11/25/OpenCV%E7%AE%97%E5%AD%90%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6NPU%E8%B0%83%E7%94%A8%E6%96%B9%E5%BC%8F/"},"headline":"OpenCV算子开发及其NPU调用方式","image":[],"datePublished":"2023-11-25T06:16:05.000Z","dateModified":"2024-01-07T12:18:23.285Z","author":{"@type":"Person","name":"计算开源团队"},"publisher":{"@type":"Organization","name":"Computing Open Source Development Team Blog","logo":{"@type":"ImageObject","url":"https://cosdt.github.io/images/logo.jpeg"}},"description":"OpenCV目前通过调用CANN提供的接口的方式调用NPU，其中调用的接口主要包括数据内存的申请、拷贝和释放、算子执行。 了解CANNCANN的官方介绍：  CANN（Compute Architecture for Neural Networks）是华为针对AI场景推出的异构计算架构，对上支持多种AI框架，对下服务AI处理器与编程，发挥承上启下的关键作用，是提升昇腾AI处理器计算效率的关键平台。"}</script><link rel="canonical" href="https://cosdt.github.io/2023/11/25/OpenCV%E7%AE%97%E5%AD%90%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6NPU%E8%B0%83%E7%94%A8%E6%96%B9%E5%BC%8F/"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.4.1/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/images/logo.jpeg" alt="Computing Open Source Development Team Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Our GitHub" href="https://github.com/cosdt"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-11-25T06:16:05.000Z" title="11/25/2023, 6:16:05 AM">2023-11-25</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-01-07T12:18:23.285Z" title="1/7/2024, 12:18:23 PM">2024-01-07</time></span></div></div><h1 class="title is-3 is-size-4-mobile">OpenCV算子开发及其NPU调用方式</h1><div class="content"><p>OpenCV目前通过调用CANN提供的接口的方式调用NPU，其中调用的接口主要包括数据内存的申请、拷贝和释放、算子执行。</p>
+<h3 id="了解CANN"><a href="#了解CANN" class="headerlink" title="了解CANN"></a>了解CANN</h3><p>CANN的官方介绍：</p>
+<blockquote>
+<p>CANN（Compute Architecture for Neural Networks）是华为针对AI场景推出的异构计算架构，对上支持多种AI框架，对下服务AI处理器与编程，发挥承上启下的关键作用，是提升昇腾AI处理器计算效率的关键平台。同时针对多样化应用场景，提供高效易用的编程接口，支持用户快速构建基于昇腾平台的AI应用和业务。</p>
+</blockquote>
+<p><img src="https://github.com/cosdt/cosdt.github.io/assets/52243582/2072cc3f-ae03-4563-9c8c-091621176746" alt="image"></p>
+<p>CANN中面向开发者的即为AscendCL，开发者通过AscendC编程，而CANN则根据编译后的指令通过任务调度将任务下发给不同的处理单元，通过驱动完成对计算资源的调用。这里计算资源主要指AI Core和AI CPU，根据处理数据的不同，即AI Core负责矩阵、向量、标量计算密集的算子计算，而AI CPU则负责非矩阵类、逻辑复杂的分支密集型计算，目前，AI Core还承担了部分无法执行在AI Core的计算密集算子计算。</p>
+<h3 id="OpenCV昇腾算子开发"><a href="#OpenCV昇腾算子开发" class="headerlink" title="OpenCV昇腾算子开发"></a>OpenCV昇腾算子开发</h3><p>CANN主要的功能特性包括推理应用开发、模型训练和算子开发，OpenCV昇腾算子的开发目前属于推理应用开发，后续提升算子支持完整度过程中会加入自定义算子开发。</p>
+<h4 id="开发流程"><a href="#开发流程" class="headerlink" title="开发流程"></a>开发流程</h4><p>CANN应用开发基于AscendCL实现，因此应用开发的基础是掌握AscendCL的<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/700alpha001/infacldevg/aclcppdevg/aclcppdevg_000003.html">架构及基本概念</a>和接口的<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/700alpha001/infacldevg/aclcppdevg/aclcppdevg_000004.html">典型调用流程</a>。本篇主要集中于算子调用流程，媒体数据处理的详细解析见<a target="_blank" rel="noopener" href="https://github.com/cosdt/cosdt.github.io/issues/15">dvpp接口调用</a>。</p>
+<p><img src="https://github.com/cosdt/cosdt.github.io/assets/52243582/7fa18465-4c85-43c5-8735-928cdd743155" alt="image"></p>
+<h4 id="常用接口"><a href="#常用接口" class="headerlink" title="常用接口"></a>常用接口</h4><p>在OpenCV应用开发中，常用的算子包括ACL（去）初始化接口、设备设置接口、device内存操作接口、Stream管理接口和具体的算子接口。ACL（去）初始化接口用来初始化系统内部资源；设备设置接口用来获取device信息、指定或切换device等；device内存操作口用来实现device和host侧的数据搬移；Stream管理接口用来管理任务的并行，一个Stream内部的任务保序执行，即Stream根据发送过来的任务依次执行；不同Stream中的任务并行执行。具体的算子接口则实现具体的计算功能。</p>
+<p>下面表格中为除具体算子接口外的常用接口列表，其详细用法参见昇腾文档。</p>
+<table>
+<thead>
+<tr>
+<th align="center">算子类别</th>
+<th align="left">接口名称</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">ACL（去）初始化接口</td>
+<td align="left">aclInit(const char *configPath)</td>
+<td>初始化ACL系统，用在程序开始时</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="left">aclFinalize()</td>
+<td>去初始化ACL系统，用在程序退出时</td>
+</tr>
+<tr>
+<td align="center">设备设置接口</td>
+<td align="left">aclrtGetDevice(int32_t *deviceId)</td>
+<td>获取当前线程的目标设备ID</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="left">aclrtResetDevice(int32_t deviceId)</td>
+<td>重置当前操作的设备并释放设备资源</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="left">aclrtGetDeviceCount(uint32_t *count)</td>
+<td>获取设备数量</td>
+</tr>
+<tr>
+<td align="center">device内存操作接口</td>
+<td align="left">aclrtMalloc(void **devPtr,size_t size,aclrtMemMallocPolicy policy)</td>
+<td>申请设备内存（真实申请的内存是32bytes对齐的）</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="left">aclrtFree(void *devPtr)</td>
+<td>释放设备内存</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="left">aclrtMemcpy(void *dst, size_t destMax, const void *src,size_t count,aclrtMemcpyKind kind)</td>
+<td>HOST和DEVICE之间的同步内存复制</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="left">aclrtMemcpyAsync(void *dst,    size_t destMax,const void *src,size_t count, aclrtMemcpyKind kind,  aclrtStream stream)</td>
+<td>HOST和DEVICE之间的异步内存复制</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="left">aclrtMemcpy2d(void *dst,size_t dpitch,const void *src, size_t spitch,size_t width,size_t height,aclrtMemcpyKind kind)</td>
+<td>HOST和DEVICE之间二维矩阵的同步内存复制</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="left">aclrtMemcpy2dAsync(void *dst,size_t dpitch,const void *src, size_t spitch,size_t width,size_t height,aclrtMemcpyKind kind,aclrtStream stream)</td>
+<td>HOST和DEVICE之间二维矩阵的异步内存复制</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="left">aclrtMemset(void *devPtr, size_t maxCount, int32_t value, size_t count)</td>
+<td>同步内存初始化</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="left">aclrtMemsetAsync(void *devPtr,size_t maxCount,int32_t value, size_t count,aclrtStream stream)</td>
+<td>异步内存初始化</td>
+</tr>
+<tr>
+<td align="center">Stream管理接口</td>
+<td align="left">aclrtCreateStream(aclrtStream *stream)</td>
+<td>创建一个Stream</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="left">aclrtSynchronizeStream(aclrtStream stream)</td>
+<td>阻塞应用程序运行，直到指定Stream中的所有任务都完成</td>
+</tr>
+</tbody></table>
+<h4 id="QA"><a href="#QA" class="headerlink" title="QA"></a>QA</h4><p><strong>如何确定算子执行在AI Core还是AI CPU？</strong></p>
+<ol>
+<li>查看<a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/canncommercial/70RC1/oplist/operatorlist/operatorlist_0001.html">CANN算子清单</a></li>
+<li>算子清单由于更新迭代问题不一定最准确，此时可以查看<code>~/Ascend/ascend-toolkit/XXX（CANN版本号）/opp/built-in/op_impl/ai_core/tbe/config/ascendXXX（NPU型号）</code>下的json文件，查看当前设备支持的AI Core算子清单；相应地，AI CPU的则位于<code>/usr/local/Ascend/ascend-toolkit/XXX（CANN版本号）/opp/built-in/op_impl/aicpu/aicpu_kernel/config</code></li>
+</ol>
+<p><strong>如何打印详细日志？</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 设置全局日志级别（<span class="number">0</span>：DEBUG；<span class="number">1</span>：INFO; <span class="number">2</span>：WARNING; <span class="number">3</span>：ERROR； <span class="number">4</span>：<span class="literal">NULL</span>（不输出））</span><br><span class="line">- <span class="keyword">export</span> ASCEND_GLOBAL_LOG_LEVEL=<span class="number">0</span>  </span><br><span class="line"></span><br><span class="line"># 是否开启日志打屏。开启后，日志将不会保存在log文件中，而是将产生的日志直接打屏显示。</span><br><span class="line">- <span class="keyword">export</span> ASCEND_SLOG_PRINT_TO_STDOUT=<span class="number">1</span> </span><br></pre></td></tr></table></figure>
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://www.hiascend.com/document/detail/zh/canncommercial/70RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000001.html">昇腾CANN文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/392243">昇腾CANN算子开发揭秘</a></li>
+</ol>
+</div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/Ascend/">Ascend</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2023/11/01/%E5%A6%82%E4%BD%95%E9%83%A8%E7%BD%B2OpenStack/"><span class="level-item">如何部署OpenStack</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><div id="comment-container"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@1.7.2/dist/gitalk.min.js"></script><script>var gitalk = new Gitalk({
+            id: "1e03f60ae1eeb08f21abcd4ebb4ae818",
+            repo: "cosdt.github.io",
+            owner: "cosdt",
+            clientID: "REPLACEME",
+            clientSecret: "REPLACEME",
+            admin: "Yikun",
+            createIssueManually: false,
+            distractionFreeMode: false,
+            perPage: 10,
+            pagerDirection: "last",
+            
+            
+            enableHotKey: true,
+            
+        })
+        gitalk.render('comment-container')</script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/images/logo.jpeg" alt="计算开源团队技术博客"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">计算开源团队技术博客</p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">11</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">4</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/cosdt" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/cosdt"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/atom.xml"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://github.com/cosdt" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">COSDT主页</span></span><span class="level-right"><span class="level-item tag">github.com</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/images/logo.jpeg" alt="Computing Open Source Development Team Blog" height="28"></a><p class="is-size-7"><span>&copy; 2024 计算开源团队</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Our GitHub" href="https://github.com/cosdt"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

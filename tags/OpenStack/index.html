@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="robots" content="noindex"><title>Tag: OpenStack - Computing Open Source Development Team Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Computing Open Source Development Team Blog"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Computing Open Source Development Team Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta property="og:type" content="website"><meta property="og:title" content="Computing Open Source Development Team Blog"><meta property="og:url" content="https://cosdt.github.io/"><meta property="og:site_name" content="Computing Open Source Development Team Blog"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://cosdt.github.io/img/og_image.png"><meta property="article:author" content="计算开源团队"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://cosdt.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://cosdt.github.io"},"headline":"Computing Open Source Development Team Blog","image":["https://cosdt.github.io/img/og_image.png"],"author":{"@type":"Person","name":"计算开源团队"},"publisher":{"@type":"Organization","name":"Computing Open Source Development Team Blog","logo":{"@type":"ImageObject","url":"https://cosdt.github.io/images/logo.jpeg"}},"description":""}</script><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.4.1/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/images/logo.jpeg" alt="Computing Open Source Development Team Blog" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Our GitHub" href="https://github.com/cosdt"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/tags">Tags</a></li><li class="is-active"><a href="#" aria-current="page">OpenStack</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-11-01T03:40:27.000Z" title="11/1/2023, 3:40:27 AM">2023-11-01</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-01-07T12:18:23.285Z" title="1/7/2024, 12:18:23 PM">2024-01-07</time></span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/11/01/%E5%A6%82%E4%BD%95%E9%83%A8%E7%BD%B2OpenStack/">如何部署OpenStack</a></p><div class="content"><h2 id="安装OpenStack"><a href="#安装OpenStack" class="headerlink" title="安装OpenStack"></a>安装OpenStack</h2><h3 id="1-使用oos工具安装"><a href="#1-使用oos工具安装" class="headerlink" title="1. 使用oos工具安装"></a><h3 id ="1">1. 使用oos工具安装</h3></h3><p>oos(openEuler OpenStack SIG)是OpenStack SIG提供的命令行工具。<br>安装oos工具，使用纳管的方式部署OpenStack环境，版本22.03-lts-sp2。</p>
+<p>若提示无该版本，可在oos工具安装路径(oos&#x2F;commands&#x2F;environment&#x2F;constants.py:OE_OS_RELEASE)添加该版本。该问题已修复，发布版本暂未更新。</p>
+<ol>
+<li><p>安装oos工具</p>
+<p> pip install openstack-sig-tool</p>
+</li>
+<li><p>创建oos环境</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">sshpass在`oos <span class="built_in">env</span> create`过程中被使用，用于配置对目标主机的免密访问</span></span><br><span class="line">dnf install sshpass</span><br><span class="line">oos env manage -r 22.03-lts-sp2 -i TARGET_MACHINE_IP -p TARGET_MACHINE_PASSWD -n test-oos</span><br></pre></td></tr></table></figure>
+
+<p> 替换TARGET_MACHINE_IP为目标机ip (使用ifconfig查看，如eth0的ip)、TARGET_MACHINE_PASSWD为目标机密码，即登陆当前环境的密码。</p>
+</li>
+<li><p>部署OpenStack</p>
+<p> 1&gt; 对于禁止密码登陆的机器，需要手动注入公匙<br> (oos&#x2F;etc&#x2F;key_pair&#x2F;id_rsa.pub)<br> 到~&#x2F;.ssh&#x2F;authorized_keys中，否则下面的命令会报错</p>
+<p> 2&gt; 安装cinder时需要有对应的磁盘&#x2F;dev&#x2F;vdb</p>
+<p> 3&gt; 其他安装可参考流程&#x2F;usr&#x2F;local&#x2F;etc&#x2F;oos&#x2F;playbooks&#x2F;entry.yaml</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">oos env setup test-oos -r wallaby</span><br></pre></td></tr></table></figure>
+
+<p> 安装完毕后可使用如下命令创建虚拟机</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">openstack flavor create --disk 1 --vcpus 2 --ram 1024 --id 1 --public my-flavor</span><br><span class="line">wget http://download.cirros-cloud.net/0.5.2/cirros-0.5.2-aarch64-disk.img -O cirros-0.5.2.img</span><br><span class="line">openstack image create --disk-format qcow2 --container-format bare --file ./cirros-0.5.2.img --public my-image -c id -f value</span><br><span class="line">openstack network create --external --share public-network --provider-network-type flat --provider-physical-network provider --default -c id -f value</span><br><span class="line">openstack subnet create --network public-network --allocation-pool start=10.100.100.189,end=10.100.100.239 --dns-nameserver 100.125.128.250 --gateway 10.100.100.1 --subnet-range 10.100.100.0/24 public-subnet</span><br><span class="line">openstack server create --flavor my-flavor --image my-image --network public-network --password root my-server</span><br></pre></td></tr></table></figure>
+
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openstack server list</span><br></pre></td></tr></table></figure>
+<p> 创建虚拟机后通过openstack server list命令查询虚拟机信息，回显会打印虚拟机id和ip<br> 可使用virsh console <id> 或ssh <ip> 命令连接虚拟机</p>
+</li>
+</ol>
+<h3 id="2-使用devstack安装"><a href="#2-使用devstack安装" class="headerlink" title="2. 使用devstack安装"></a><h3 id ="2">2. 使用devstack安装</h3></h3><p>使用devstack部署OpenStack，干净的环境大概率不会报错  </p>
+<p>安装步骤如下(master分支)</p>
+<ol>
+<li><p>安装前准备</p>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">cd /opt/</span><br><span class="line">git clone https://opendev.org/openstack/devstack.git</span><br><span class="line"></span><br><span class="line">/opt/devstack/tools/create-stack-user.sh</span><br><span class="line">chown -R stack:stack /opt/devstack</span><br><span class="line">chmod -R 755 /opt/devstack</span><br><span class="line">chmod -R 755 /opt/stack</span><br><span class="line"></span><br><span class="line">切换stack用户</span><br><span class="line">su stack</span><br><span class="line"></span><br><span class="line">确保stack用户的PATH环境变量包含了`/usr/sbin`</span><br><span class="line">PATH=$PATH:/usr/sbin</span><br><span class="line"></span><br><span class="line">新增配置文件</span><br><span class="line">vi /opt/devstack/local.conf</span><br><span class="line">[[local|localrc]]</span><br><span class="line">DATABASE_PASSWORD=root</span><br><span class="line">RABBIT_PASSWORD=root</span><br><span class="line">SERVICE_PASSWORD=root</span><br><span class="line">ADMIN_PASSWORD=root</span><br><span class="line">OVN_BUILD_FROM_SOURCE=True</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">arm环境增加如下配置</span></span><br><span class="line">[[post-config|$NOVA_CONF]]</span><br><span class="line">[libvirt]</span><br><span class="line">cpu_mode=custom</span><br><span class="line">cpu_model=cortex-a72</span><br></pre></td></tr></table></figure>
+
+<p> devstack的master分支要求libvirt版本大于7.0<br> arm环境安装软件包edk2时缺少arm配置，建议使用下面的yum源安装libvirt和edk2相关软件包<br> <a target="_blank" rel="noopener" href="https://eur.openeuler.openatom.cn/coprs/g/sig-openstack/Libvirt-7.X/repo/openeuler-22.03_LTS/group_sig-openstack-Libvirt-7.X-openeuler-22.03_LTS.repo">https://eur.openeuler.openatom.cn/coprs/g/sig-openstack/Libvirt-7.X/repo/openeuler-22.03_LTS/group_sig-openstack-Libvirt-7.X-openeuler-22.03_LTS.repo</a></p>
+</li>
+<li><p>部署OpenStack</p>
+<p> 进入&#x2F;opt&#x2F;devstack目录，执行.&#x2F;stack.sh，等待部署完成</p>
+</li>
+<li><p>日志</p>
+<p> devstack将日志生成到文件需要在部署前在local.conf中添加配置</p>
+<p> 未配置日志内容可使用systemd的方法查看日志，如查看nova-compute<br> 服务的日志，服务名称可在&#x2F;etc&#x2F;systemd&#x2F;system目录下查看，<br> 其名称携带devstack@前缀，如下图所示</p>
+</li>
+</ol>
+<p><img src="https://github.com/cosdt/cosdt.github.io/assets/141810885/ccc90a0f-0765-4781-aae4-fa6a48d43d08" alt="6eb07801786627e341494b0fa34132d"></p>
+<pre><code>systemd日志查看命令举例如下：
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">journalctl --unit devstack@n-cpu.service</span><br></pre></td></tr></table></figure>
+</code></pre>
+<ol start="4">
+<li><p>systemd调试方法</p>
+<p> 注：退出调试重启systemd服务时，一定要删除断点<br> nova-compute调试举例如下：</p>
+<p> 1&gt; 在对应的安装目录文件设置断点<br> import pdb;pdb.set_trace()</p>
+<p> 2&gt; 停止systemd服务<br> systemctl stop <a href="mailto:&#x64;&#101;&#x76;&#115;&#116;&#x61;&#99;&#107;&#64;&#110;&#45;&#x63;&#112;&#x75;&#x2e;&#x73;&#x65;&#x72;&#x76;&#105;&#99;&#x65;">&#x64;&#101;&#x76;&#115;&#116;&#x61;&#99;&#107;&#64;&#110;&#45;&#x63;&#112;&#x75;&#x2e;&#x73;&#x65;&#x72;&#x76;&#105;&#99;&#x65;</a></p>
+<p> 3&gt; 执行启动服务<br> 查看对应服务，在终端1执行该命令</p>
+</li>
+</ol>
+<p><img src="https://github.com/cosdt/cosdt.github.io/assets/141810885/c73f178a-a596-419f-bd42-2635e2eaf59e" alt="systemd_cmd"></p>
+<pre><code>4&gt; 调试  
+在终端2执行OpenStack创建服务命令，代码会停止在断点处
+
+另外，对于uwsgi这种服务，可能需要加上--honour-stdin才能调试，
+可使用uwsgi --help查看参数含义
+</code></pre>
+</div></article></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/images/logo.jpeg" alt="计算开源团队技术博客"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">计算开源团队技术博客</p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">11</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">4</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/cosdt" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/cosdt"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/atom.xml"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">Links</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://github.com/cosdt" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">COSDT主页</span></span><span class="level-right"><span class="level-item tag">github.com</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/images/logo.jpeg" alt="Computing Open Source Development Team Blog" height="28"></a><p class="is-size-7"><span>&copy; 2024 计算开源团队</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Our GitHub" href="https://github.com/cosdt"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
