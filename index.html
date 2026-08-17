@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Additional Platforms - PyTorch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --surface: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #ee4c2c;
+      --accent-hover: #d73a1b;
+      --accent-soft: #fff1ee;
+      --code-bg: #f9fafb;
+      --code-text: #1f2937;
+      --success: #16a34a;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 48px 20px 80px;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    h1 {
+      font-size: 38px;
+      font-weight: 700;
+      margin: 0 0 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+      max-width: 720px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .config-row {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 24px;
+      align-items: flex-start;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .config-row:first-child { padding-top: 0; }
+    .config-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+    .row-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      padding-top: 8px;
+    }
+
+    .row-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f3f4f6;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .chip:hover { background: #e5e7eb; }
+    .chip.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* Configuration row */
+    .config-summary-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .config-summary {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .config-summary .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #9ca3af;
+    }
+
+    .config-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modify-btn {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 4px;
+      transition: color 0.2s;
+    }
+
+    .modify-btn:hover { color: var(--accent-hover); }
+
+    .reset-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 4px;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+
+    .reset-btn:hover { color: var(--accent); }
+    .reset-btn.hidden { display: none; }
+
+    .done-btn {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 4px;
+      transition: color 0.2s;
+    }
+
+    .done-btn:hover { color: var(--accent-hover); }
+
+    .config-editor {
+      width: 100%;
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.35s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .config-editor.is-open {
+      max-height: 400px;
+      opacity: 1;
+      margin-top: 18px;
+    }
+
+    .editor-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .editor-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Commands section */
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .section-desc {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0 0 18px;
+    }
+
+    .commands-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .commands-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      background: #f9fafb;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .commands-table td {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .commands-table tr:last-child td { border-bottom: none; }
+
+    .platform-name {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .platform-meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .command-cell {
+      position: relative;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 56px 14px 16px;
+      color: var(--code-text);
+      word-break: break-all;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      min-height: 52px;
+    }
+
+    .command-cell .hover-copy {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: all 0.2s ease;
+    }
+
+    .command-cell .hover-copy svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .command-cell .hover-copy:hover {
+      color: var(--text);
+      border-color: #d1d5db;
+      background: #f9fafb;
+    }
+
+    .command-cell:hover .hover-copy {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .command-cell .hover-copy.copied {
+      color: var(--success);
+      border-color: var(--success);
+      background: #f0fdf4;
+    }
+
+    .command-cell .hover-copy::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: -32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: #1f2937;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 5px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.15s ease;
+    }
+
+    .command-cell .hover-copy:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Support channel */
+    .support-content {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .support-content a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .support-content a:hover { text-decoration: underline; }
+
+    .note {
+      margin-top: 24px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .note strong { color: var(--text); }
+
+    .hidden { display: none !important; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 720px) {
+      h1 { font-size: 30px; }
+      .card { padding: 24px; }
+      .config-row { grid-template-columns: 1fr; gap: 12px; }
+      .row-label { padding-top: 0; }
+      .editor-row { grid-template-columns: 1fr; gap: 10px; }
+      .commands-table thead { display: none; }
+      .commands-table tr { display: block; border-bottom: 1px solid var(--border); }
+      .commands-table td { display: block; width: 100%; border-bottom: none; padding: 12px 16px; }
+      .commands-table tr:last-child { border-bottom: none; }
+      .command-cell { padding: 12px 16px 56px 16px; }
+      .command-cell .hover-copy {
+        opacity: 1;
+        transform: translateY(0);
+        top: auto;
+        bottom: 10px;
+        right: 10px;
+      }
+      .command-cell .hover-copy::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Additional Platforms</h1>
+    <p class="subtitle">
+      In the selector below, you will find compute platforms and configurations provided by our partners and community members. Choose your preferences and run the provided command.
+    </p>
+
+    <div class="card">
+      <!-- 1. Compute Platform -->
+      <div class="config-row">
+        <div class="row-label">Compute Platform</div>
+        <div class="row-content">
+          <div class="chip-group" id="computeChips">
+            <span class="chip" data-value="ascend" onclick="setCompute('ascend')">Ascend NPU</span>
+            <span class="chip" data-value="xpu" onclick="setCompute('xpu')">XPU</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Configuration -->
+      <div class="config-row">
+        <div class="row-label">Configuration</div>
+        <div class="row-content" style="display: block;">
+          <div class="config-summary-wrap">
+            <div class="config-summary" id="configSummary">
+              <span>Stable (2.13.0)</span><span class="dot"></span><span>Linux</span>
+            </div>
+            <div class="config-actions" id="configActions">
+              <button class="reset-btn hidden" id="resetBtn" onclick="resetConfig()">Reset</button>
+              <button class="modify-btn" id="modifyBtn" onclick="toggleModify()">Modify</button>
+            </div>
+          </div>
+
+          <div class="config-editor" id="configEditor">
+            <div class="editor-row">
+              <div class="editor-label">PyTorch Build</div>
+              <div class="chip-group" id="buildChips">
+                <span class="chip" data-value="stable" onclick="setBuild('stable')">Stable(2.13.0)</span>
+                <span class="chip" data-value="preview" onclick="setBuild('preview')">Preview (Nightly)</span>
+              </div>
+            </div>
+            <div class="editor-row">
+              <div class="editor-label">Your OS</div>
+              <div class="chip-group" id="osChips">
+                <span class="chip" data-value="linux" onclick="setOs('linux')">Linux</span>
+                <span class="chip" data-value="mac" onclick="setOs('mac')">Mac</span>
+                <span class="chip" data-value="windows" onclick="setOs('windows')">Windows</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Commands -->
+      <div class="config-row">
+        <div class="row-label">Commands</div>
+        <div class="row-content" style="display: block; width: 100%;">
+          <p class="section-desc">Copy the exact command for your environment.</p>
+          <table class="commands-table">
+            <thead>
+              <tr>
+                <th style="width: 220px;">Compute Platform</th>
+                <th>Install Command</th>
+              </tr>
+            </thead>
+            <tbody id="commandsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. Support Channel -->
+      <div class="config-row">
+        <div class="row-label">Support Channel</div>
+        <div class="row-content">
+          <div class="support-content" id="supportChannel">
+            Select a compute platform to see the support channel.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">
+      <strong>Note:</strong> More platform-specific details will appear below upon selection. Please scroll down.
+    </p>
+  </div>
+
+  <script>
+    const state = {
+      compute: 'ascend',
+      build: 'stable',
+      os: 'linux'
+    };
+
+    const defaultState = { ...state };
+
+    const labels = {
+      build: { stable: 'Stable (2.13.0)', preview: 'Preview (Nightly)' },
+      os: { linux: 'Linux', mac: 'Mac', windows: 'Windows' },
+      compute: { ascend: 'Ascend NPU', xpu: 'Intel XPU' }
+    };
+
+    const supportChannels = {
+      ascend: 'For Huawei Ascend NPU support, visit the <a href="https://www.hiascend.com/" target="_blank" rel="noopener">Ascend Community</a> or file issues in the <a href="https://gitee.com/ascend/pytorch" target="_blank" rel="noopener">Ascend PyTorch repo</a>.',
+      xpu: 'For Intel XPU support, see the <a href="https://www.intel.com/content/www/us/en/products/details/accelerators/ai-accelerators/gaudi-overview.html" target="_blank" rel="noopener">Intel PyTorch XPU documentation</a> or join the <a href="https://github.com/pytorch/pytorch/discussions" target="_blank" rel="noopener">PyTorch Discussions</a>.'
+    };
+
+    const commands = {
+      ascend: 'pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu  # For Ascend NPU, install the Ascend extension from https://www.hiascend.com/',
+      xpu: 'pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/xpu'
+    };
+
+    function renderChips(groupId, value) {
+      document.querySelectorAll(`#${groupId} .chip`).forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.value === value);
+      });
+    }
+
+    function setCompute(value) {
+      state.compute = value;
+      renderChips('computeChips', value);
+      updateAll();
+    }
+
+    function setBuild(value) {
+      state.build = value;
+      renderChips('buildChips', value);
+      updateAll();
+    }
+
+    function setOs(value) {
+      state.os = value;
+      renderChips('osChips', value);
+      updateAll();
+    }
+
+    function toggleModify() {
+      const editor = document.getElementById('configEditor');
+      const btn = document.getElementById('modifyBtn');
+      const isOpen = editor.classList.toggle('is-open');
+      btn.textContent = isOpen ? 'Done' : 'Modify';
+      btn.classList.toggle('done-btn', isOpen);
+      updateResetButton();
+    }
+
+    function updateConfigSummary() {
+      const parts = [
+        labels.build[state.build],
+        labels.os[state.os]
+      ];
+      document.getElementById('configSummary').innerHTML = parts.map((p, i) => {
+        const dot = i < parts.length - 1 ? '<span class="dot"></span>' : '';
+        return `<span>${p}</span>${dot}`;
+      }).join('');
+    }
+
+    function getCommand() {
+      let cmd = commands[state.compute] || '#';
+      if (state.build === 'preview') {
+        cmd = cmd.replace('pip3 install', 'pip3 install --pre').replace('/whl/', '/whl/nightly/');
+      }
+      return cmd;
+    }
+
+    function renderCommandsTable() {
+      const cmd = getCommand();
+      const configMeta = `${labels.build[state.build]} · ${labels.os[state.os]}`;
+      const escapedCmd = cmd.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      document.getElementById('commandsTable').innerHTML = `
+        <tr>
+          <td>
+            <div class="platform-name">${labels.compute[state.compute]}</div>
+            <div class="platform-meta">${configMeta}</div>
+          </td>
+          <td>
+            <div class="command-cell" id="commandCell">${escapedCmd}<button class="hover-copy" id="hoverCopy" onclick="copyCommand()" data-tooltip="Copy Code" aria-label="Copy Code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button></div>
+          </td>
+        </tr>
+      `;
+    }
+
+    function renderSupportChannel() {
+      document.getElementById('supportChannel').innerHTML = supportChannels[state.compute];
+    }
+
+    function updateResetButton() {
+      const editor = document.getElementById('configEditor');
+      const resetBtn = document.getElementById('resetBtn');
+      const isDefault = state.build === defaultState.build && state.os === defaultState.os;
+      resetBtn.classList.toggle('hidden', !editor.classList.contains('is-open') || isDefault);
+    }
+
+    function resetConfig() {
+      state.build = defaultState.build;
+      state.os = defaultState.os;
+      renderChips('buildChips', state.build);
+      renderChips('osChips', state.os);
+      updateAll();
+    }
+
+    async function copyCommand() {
+      const cmd = getCommand();
+      const btn = document.getElementById('hoverCopy');
+      const originalTooltip = btn.dataset.tooltip;
+      try {
+        await navigator.clipboard.writeText(cmd);
+        btn.classList.add('copied');
+        btn.dataset.tooltip = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.dataset.tooltip = originalTooltip;
+        }, 2000);
+      } catch (e) {
+        btn.dataset.tooltip = 'Failed';
+        setTimeout(() => { btn.dataset.tooltip = originalTooltip; }, 2000);
+      }
+    }
+
+    function updateURL() {
+      const params = new URLSearchParams(state);
+      history.replaceState(null, '', '?' + params.toString());
+    }
+
+    function updateAll() {
+      updateConfigSummary();
+      updateResetButton();
+      renderCommandsTable();
+      renderSupportChannel();
+      updateURL();
+    }
+
+    function init() {
+      const params = new URLSearchParams(location.search);
+      ['compute', 'build', 'os'].forEach(key => {
+        if (params.has(key) && labels[key]?.[params.get(key)]) {
+          state[key] = params.get(key);
+        }
+      });
+
+      renderChips('computeChips', state.compute);
+      renderChips('buildChips', state.build);
+      renderChips('osChips', state.os);
+      updateAll();
+    }
+
+    init();
+  </script>
+</body>
+</html>
